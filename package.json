@@ -11,6 +11,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@tanstack/solid-query": "^4.27.0",
     "@tauri-apps/api": "^1.2.0",
     "solid-js": "^1.4.7"
   },
