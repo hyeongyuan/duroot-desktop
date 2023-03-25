@@ -27,7 +27,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
+      "identifier": "com.duroot.dev",
       "targets": "all"
     },
     "security": {
@@ -36,14 +36,10 @@
     "updater": {
       "active": false
     },
-    "windows": [
-      {
-        "fullscreen": false,
-        "resizable": true,
-        "title": "duroot-desktop",
-        "width": 800,
-        "height": 600
-      }
-    ]
+    "windows": [],
+    "systemTray": {
+      "iconPath": "icons/icon.png",
+      "iconAsTemplate": true
+    }
   }
 }
