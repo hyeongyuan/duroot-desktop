@@ -1,42 +1,41 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use tauri::{SystemTray, SystemTrayMenu, SystemTrayMenuItem, SystemTrayEvent, CustomMenuItem};
-
-fn generate_tray_menu() -> SystemTrayMenu {
-    let version = CustomMenuItem::new("version".to_string(), "v0.0.1").disabled();
-    let preference = CustomMenuItem::new("preference".to_string(), "설정");
-    let quit = CustomMenuItem::new("quit".to_string() , "종료");
-
-    let tray_menu = SystemTrayMenu::new()
-        .add_item(version)
-        .add_native_item(SystemTrayMenuItem::Separator)
-        .add_item(preference)
-        .add_native_item(SystemTrayMenuItem::Separator)
-        .add_item(quit);
-    
-    tray_menu
-}
+use tauri::{SystemTray, SystemTrayMenu, SystemTrayEvent, Manager};
+use tauri_plugin_positioner::{Position, WindowExt};
 
 fn main() {
-    let tray_menu = generate_tray_menu();
+    let system_tray_menu = SystemTrayMenu::new();
 
     tauri::Builder::default()
-        .system_tray(SystemTray::new().with_menu(tray_menu))
-        .on_system_tray_event(|app, event| match event {
-            SystemTrayEvent::MenuItemClick { id, .. } => {
-                match id.as_str() {
-                    "preference" => {
-                        tauri::WindowBuilder::new(
-                            app,
-                            "Main",
-                            tauri::WindowUrl::App("index.html".into())
-                        ).build().expect("failed to build window");
+        .plugin(tauri_plugin_positioner::init())
+        .system_tray(SystemTray::new().with_menu(system_tray_menu))
+        .on_system_tray_event(|app, event| {
+            tauri_plugin_positioner::on_tray_event(app, &event);
+            match event {
+                SystemTrayEvent::LeftClick {
+                    position: _,
+                    size: _,
+                    ..
+                } => {
+                    let window = app.get_window("main").unwrap();
+                    // use TrayCenter as initial window position
+                    let _ = window.move_window(Position::TrayCenter);
+                    if window.is_visible().unwrap() {
+                        window.hide().unwrap();
+                    } else {
+                        window.show().unwrap();
+                        window.set_focus().unwrap();
                     }
-                    "quit" => {
-                        std::process::exit(0);
-                    }
-                    _ => {}
+                }
+                _ => {}
+            }
+        })
+        .on_window_event(|event| match event.event() {
+            tauri::WindowEvent::Focused(is_focused) => {
+                // detect click outside of the focused window and hide the app
+                if !is_focused {
+                    event.window().hide().unwrap();
                 }
             }
             _ => {}

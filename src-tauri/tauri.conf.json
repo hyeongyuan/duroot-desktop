@@ -36,7 +36,23 @@
     "updater": {
       "active": false
     },
-    "windows": [],
+    "macOSPrivateApi": true,
+    "windows": [
+      {
+        "fullscreen": false,
+        "resizable": false,
+        "title": "menubar",
+        "width": 400,
+        "height": 500,
+        "visible": false,
+        "hiddenTitle": true,
+        "decorations": false,
+        "focus": false,
+        "transparent": true,
+        "skipTaskbar": true,
+        "alwaysOnTop": true
+      }
+    ],
     "systemTray": {
       "iconPath": "icons/icon.png",
       "iconAsTemplate": true
