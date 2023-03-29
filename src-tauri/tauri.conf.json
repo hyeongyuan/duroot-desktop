@@ -54,7 +54,7 @@
       }
     ],
     "systemTray": {
-      "iconPath": "icons/icon.png",
+      "iconPath": "icons/forest.png",
       "iconAsTemplate": true
     }
   }
