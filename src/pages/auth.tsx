@@ -1,6 +1,5 @@
 import { createSignal, Show } from 'solid-js';
 import axios, { AxiosError } from 'axios';
-import Button from '../components/Button';
 
 const ERROR_MESSAGE: Record<number, string> = {
   401: '올바른 토큰이 아닙니다.',

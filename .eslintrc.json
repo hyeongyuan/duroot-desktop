@@ -19,6 +19,7 @@
     ],
     "rules": {
         "semi": "warn",
+        "quotes": ["warn", "single"],
         "no-unused-vars": "off"
     }
 }

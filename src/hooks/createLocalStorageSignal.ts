@@ -1,5 +1,5 @@
-import { Accessor, Setter, createEffect, createSignal } from "solid-js";
-import { getAllDatabase, updateDatabase } from "../utils/database";
+import { Accessor, Setter, createEffect, createSignal } from 'solid-js';
+import { getAllDatabase, updateDatabase } from '../utils/database';
 
 const createLocalStorageSignal = <T extends object>(key: string): [Accessor<T | undefined>, Setter<T>] => {
   const [value, setValue] = createSignal<T>();

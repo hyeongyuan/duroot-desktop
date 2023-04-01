@@ -1,4 +1,3 @@
-
 function Spinner() {
   return (
     <div class="text-center py-8">
