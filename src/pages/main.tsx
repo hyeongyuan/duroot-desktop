@@ -2,13 +2,15 @@ import { createEffect, createSignal, For } from "solid-js";
 import { formatDistanceToNow } from "date-fns";
 import { PullItem } from "../components/github/pull-item";
 import Spinner from "../components/Spinner";
+import createLocalStorageSignal from "../hooks/createLocalStorageSignal";
 import { fetchPulls, IPull } from "../utils/github-api";
 
 function Main() {
+  const [token] = createLocalStorageSignal<{github: string}>('token');
   const [pulls, setPulls] = createSignal<IPull[]>();
-
+  
   createEffect(() => {
-    fetchPulls({owner: 'hyeongyuan', repo: 'chat-gpt-review'})
+    fetchPulls({owner: 'dunamu-stock', repo: 'stockplus-webview-sdk-fe'}, token()?.github)
       .then(data => {
         setPulls(data);
       });
@@ -21,7 +23,7 @@ function Main() {
           {item => (
             <PullItem
               title={item.title}
-              subtitle={`${item.owner} / ${item.repo}`}
+              subtitle={`${item.owner}/${item.repo}`}
               timestamp={formatDistanceToNow(new Date(item.createdAt))}
               approved={item.approved}
             />

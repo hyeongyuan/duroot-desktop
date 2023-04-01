@@ -1,35 +1,27 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
-import { createEffect, createSignal, Show } from 'solid-js';
+import { Show } from 'solid-js';
 import AuthPage from './pages/auth';
 import MainPage from './pages/main';
 import Spinner from './components/Spinner';
-import { getAllDatabase, IDatabase, updateDatabase } from './utils/database';
+import createLocalStorageSignal from './hooks/createLocalStorageSignal';
 
 const queryClient = new QueryClient();
 
 function App() {
-  const [database, setDatabase] = createSignal<IDatabase>();
-
-  createEffect(() => {
-    getAllDatabase().then(data => {
-      console.log(data);
-      setDatabase({
-        token: {
-          github: 'hello'
-        }
-      });
-    });
-  });
+  const [token, setToken] = createLocalStorageSignal<{github: string}>('token');
 
   const handleSubmit = async (token: string) => {
-    await updateDatabase('token.github', token);
+    setToken(prevToken => ({
+      ...prevToken,
+      github: token,
+    }));
   };
 
   return (
     <QueryClientProvider client={queryClient}>
       <div class="bg-[#22272e] text-[#adbac7] h-screen rounded overflow-hidden">
-        <Show when={!!database()} fallback={<Spinner />}>
-          {!database()?.token?.github ? (
+        <Show when={!!token()} fallback={<Spinner />}>
+          {!token()?.github ? (
             <AuthPage onSubmit={handleSubmit} />
           ) : (
             <MainPage />

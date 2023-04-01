@@ -24,8 +24,12 @@ export interface IPull {
   createdAt: string;
 }
 
-export const fetchPulls = async ({owner, repo}: IFetchPulls) => {
-  const {data: pulls} = await instance.get<any[]>(`/repos/${owner}/${repo}/pulls`);
+export const fetchPulls = async ({owner, repo}: IFetchPulls, token?: string) => {
+  const {data: pulls} = await instance.get<any[]>(`/repos/${owner}/${repo}/pulls`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    }
+  });
 
   return pulls.map(pull => ({
     id: pull.number,
