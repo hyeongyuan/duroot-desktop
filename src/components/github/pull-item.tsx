@@ -18,7 +18,7 @@ export function PullItem (props: PullProps) {
     >
       <div class="flex items-center">
         <p class="pr-1 text-[#768390] text-xs leading-5 line-clamp-1 break-all">
-          {props.subtitle + 'hello'}
+          {props.subtitle}
         </p>
         <Show when={props.approved}>
           <ApprovedLabel />

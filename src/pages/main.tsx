@@ -17,18 +17,25 @@ function Main() {
       });
   });
 
-  const handleClick = (id: number) => {
+  const handleClickItem = (id: number) => {
     const pull = pulls()?.find(pull => pull.id === id);
     if (!pull) {
       return;
     }
     open(pull.url);
   };
+
+  const handleClickAdd = () => {
+    console.log('add');
+  };
   
   return (
     <div class="w-full">
-      <div class="p-2">
-        <div class="inline-block hover:bg-[#2d333b] p-1 rounded-lg text-right">
+      <div
+        class="bg-[#2d333b] px-1 pt-1 border border-[#373e47]"
+        onClick={() => handleClickAdd()}
+      >
+        <div class="inline-block p-1 cursor-pointer">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M6 12H18M12 18V6" stroke="#768390" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -43,7 +50,7 @@ function Main() {
               subtitle={`${item.owner}/${item.repo}`}
               timestamp={formatDistanceToNow(new Date(item.createdAt))}
               approved={item.approved}
-              onClick={handleClick}
+              onClick={handleClickItem}
             />
           )}
         </For>
