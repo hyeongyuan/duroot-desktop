@@ -25,7 +25,7 @@ export interface IPull {
 }
 
 export const fetchPulls = async ({owner, repo}: IFetchPulls, token?: string) => {
-  const {data: pulls} = await instance.get<any[]>(`/repos/${owner}/${repo}/pulls`, {
+  const { data: pulls } = await instance.get<any[]>(`/repos/${owner}/${repo}/pulls`, {
     headers: {
       Authorization: `Bearer ${token}`,
     }
@@ -41,4 +41,24 @@ export const fetchPulls = async ({owner, repo}: IFetchPulls, token?: string) => 
     approved: true,
     createdAt: pull.created_at,
   } as IPull));
+};
+
+interface IUser {
+  id: number;
+  username: string;
+  displayName: string;
+}
+
+export const fetchUser = async (token: string) => {
+  const { data: user } = await instance.get('https://api.github.com/user', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return {
+    id: user.id,
+    username: user.login,
+    displayName: user.name,
+  } as IUser;
 };

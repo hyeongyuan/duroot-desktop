@@ -1,6 +1,7 @@
 import { createSignal, Show } from 'solid-js';
-import axios, { AxiosError } from 'axios';
+import { AxiosError } from 'axios';
 import Input from '../components/common/input';
+import { fetchUser } from '../utils/github-api';
 
 const ERROR_MESSAGE: Record<number, string> = {
   401: '올바른 토큰이 아닙니다.',
@@ -16,15 +17,9 @@ function Auth(props: AuthProps) {
 
   const handleSubmit = async () => {
     try {
-      const { data } = await axios.get('https://api.github.com/user', {
-        headers: {
-          Accept: 'application/vnd.github+json',
-          Authorization: `Bearer ${token()}`,
-          // 'X-GitHub-Api-Version': '2022-11-28',
-        }
-      });
+      const user = await fetchUser(token());
 
-      console.log(data);
+      alert(`${user.displayName} 님 환영합니다!`);
       
       props.onSubmit?.(token());
     } catch (err) {
@@ -34,6 +29,7 @@ function Auth(props: AuthProps) {
       setMessage(ERROR_MESSAGE[status] || error.message);
     }
   };
+
   return (
     <div class='flex flex-1 justify-center'>
       <div class="my-32">
