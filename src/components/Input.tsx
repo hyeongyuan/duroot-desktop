@@ -18,11 +18,11 @@ function Input(props: InputProps) {
         autocomplete="off"
         autocapitalize="off"
         value={props.value}
-        onChange={props.onChange}
+        onChange={(e) => props.onChange?.(e)}
       />
       <p>{props.message}</p>
     </div>
-  )
+  );
 }
 
 export default Input;

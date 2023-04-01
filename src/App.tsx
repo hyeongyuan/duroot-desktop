@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
 import { createEffect, createSignal, Show } from 'solid-js';
 import AuthPage from './pages/auth';
 import MainPage from './pages/main';
+import Spinner from './components/Spinner';
 import { getAllDatabase, IDatabase, updateDatabase } from './utils/database';
 
 const queryClient = new QueryClient();
@@ -9,10 +10,15 @@ const queryClient = new QueryClient();
 function App() {
   const [database, setDatabase] = createSignal<IDatabase>();
 
-  createEffect(async () => {
-    const data = await getAllDatabase();
-    
-    setDatabase(data || {});
+  createEffect(() => {
+    getAllDatabase().then(data => {
+      console.log(data);
+      setDatabase({
+        token: {
+          github: 'hello'
+        }
+      });
+    });
   });
 
   const handleSubmit = async (token: string) => {
@@ -22,7 +28,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <div class="flex bg-[#2f2f2f] text-[#f6f6f6] h-screen rounded">
-        <Show when={!!database()} fallback={<div>Loading ...</div>}>
+        <Show when={!!database()} fallback={<Spinner />}>
           {!database()?.token?.github ? (
             <AuthPage onSubmit={handleSubmit} />
           ) : (

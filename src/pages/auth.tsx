@@ -10,7 +10,7 @@ interface AuthProps {
   onSubmit?: (token: string) => void;
 }
 
-function Auth({onSubmit}: AuthProps) {
+function Auth(props: AuthProps) {
   const [token, setToken] = createSignal('');
   const [message, setMessage] = createSignal('');
 
@@ -26,7 +26,7 @@ function Auth({onSubmit}: AuthProps) {
 
       console.log(data);
       
-      onSubmit?.(token());
+      props.onSubmit?.(token());
     } catch (err) {
       const error = err as AxiosError;
       const { status } = error.response || { status: 599 };
@@ -66,7 +66,7 @@ function Auth({onSubmit}: AuthProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default Auth;
