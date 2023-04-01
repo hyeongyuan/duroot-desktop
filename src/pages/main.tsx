@@ -34,7 +34,7 @@ function Main() {
   const [pulls] = createSignal<IPull[]>(mockPulls);
   return (
     <div class="w-full">
-      <ul class="divide-y divide-slate-600">
+      <ul class="divide-y divide-[#373e47]">
         <For each={pulls()} fallback={<Spinner />}>
           {item => (
             <Pull title={item.title} repo={item.repo} owner={item.owner} user={item.user} />

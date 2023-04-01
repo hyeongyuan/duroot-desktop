@@ -7,8 +7,8 @@ interface PullProps {
 
 function Pull (props: PullProps) {
   return (
-    <li class="flex flex-col px-4 py-2">
-      <p class="flex align-center font-normal pr-1 text-gray-400 text-sm leading-5 line-clamp-1 break-all">
+    <li class="flex flex-col px-4 py-2 cursor-pointer">
+      <p class="flex align-center font-normal pr-1 text-[#768390] text-sm leading-5 line-clamp-1 break-all">
         {`${props.owner} / ${props.repo}`}
       </p>
       <h1 class="flex align-center font-medium text-base leading-6 line-clamp-3">
