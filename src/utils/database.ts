@@ -1,4 +1,4 @@
-import { exists, writeTextFile, readTextFile, BaseDirectory } from '@tauri-apps/api/fs';
+import { exists, writeTextFile, readTextFile, BaseDirectory, createDir } from '@tauri-apps/api/fs';
 
 const DATABASE_ROOT = 'databases';
 const DATABASE_FILE = `${DATABASE_ROOT}/v1.txt`;
@@ -19,6 +19,11 @@ export const getAllDatabase = async (): Promise<IDatabase | null> => {
 };
 
 export const updateDatabase = async (key: string, value: any): Promise<IDatabase> => {
+  const exitsDir = await exists(DATABASE_ROOT, { dir: BaseDirectory.AppData });
+  if (!exitsDir) {
+    await createDir(DATABASE_ROOT, { dir: BaseDirectory.AppData, recursive: true });
+  }
+
   const data = (await getAllDatabase() || {});
 
   let pointer = data as any;
