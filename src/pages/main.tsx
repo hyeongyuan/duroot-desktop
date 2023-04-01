@@ -1,5 +1,6 @@
 import { createEffect, createSignal, For } from "solid-js";
-import Pull from "../components/github/Pull";
+import { formatDistanceToNow } from "date-fns";
+import { PullItem } from "../components/github/pull-item";
 import Spinner from "../components/Spinner";
 import { fetchPulls, IPull } from "../utils/github-api";
 
@@ -18,7 +19,12 @@ function Main() {
       <ul class="divide-y divide-[#373e47]">
         <For each={pulls()} fallback={<Spinner />}>
           {item => (
-            <Pull title={item.title} repo={item.repo} owner={item.owner} user={item.user} createdAt={item.createdAt} />
+            <PullItem
+              title={item.title}
+              subtitle={`${item.owner} / ${item.repo}`}
+              timestamp={formatDistanceToNow(new Date(item.createdAt))}
+              approved={item.approved}
+            />
           )}
         </For>
       </ul>

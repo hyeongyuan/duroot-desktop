@@ -20,6 +20,7 @@ export interface IPull {
   reviewers: string[];
   user: string;
   url: string;
+  approved: boolean;
   createdAt: string;
 }
 
@@ -33,6 +34,7 @@ export const fetchPulls = async ({owner, repo}: IFetchPulls) => {
     owner,
     user: pull.user.login,
     url: pull.html_url,
+    approved: true,
     createdAt: pull.created_at,
   } as IPull));
 };
