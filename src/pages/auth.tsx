@@ -1,5 +1,6 @@
 import { createSignal, Show } from 'solid-js';
 import axios, { AxiosError } from 'axios';
+import Input from '../components/common/input';
 
 const ERROR_MESSAGE: Record<number, string> = {
   401: '올바른 토큰이 아닙니다.',
@@ -41,9 +42,8 @@ function Auth(props: AuthProps) {
         </div>
         <div class='flex'>
           <div class="mr-2">
-            <input
-              type='text'
-              class="bg-white text-[#0f0f0f] px-2 py-1 rounded-sm"
+            <Input
+              placeholder="Please enter your token"
               value={token()}
               onInput={(e) => {
                 setMessage('');
@@ -57,7 +57,7 @@ function Auth(props: AuthProps) {
             </Show>
           </div>
           <button
-            class="bg-[#0f0f0f98] rounded h-[32px] px-4"
+            class="bg-[#347d39] hover:bg-[#46954a] text-[#ffffff] text-sm rounded h-[32px] px-4 border border-[rgba(205,217,229,0.1)]"
             onClick={handleSubmit}
           >
             등록

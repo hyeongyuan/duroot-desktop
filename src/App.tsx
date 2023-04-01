@@ -19,7 +19,7 @@ export function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div class="bg-[#22272e] text-[#adbac7] h-screen rounded overflow-hidden">
+      <div class="bg-[#22272e] text-[#adbac7] h-screen rounded-md overflow-hidden">
         <Show when={!!token()} fallback={<Spinner />}>
           {!token()?.github ? (
             <AuthPage onSubmit={handleSubmit} />

@@ -6,3 +6,14 @@ input,
 button {
   outline: none;
 }
+
+input::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: #545d68;
+  opacity: 1; /* Firefox */
+}
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+  color: #545d68;
+}
+::-ms-input-placeholder { /* Microsoft Edge */
+  color: #545d68;
+}
