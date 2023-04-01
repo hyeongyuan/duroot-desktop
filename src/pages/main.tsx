@@ -1,3 +1,4 @@
+import { open } from '@tauri-apps/api/shell';
 import { createEffect, createSignal, For } from 'solid-js';
 import { formatDistanceToNow } from 'date-fns';
 import { PullItem } from '../components/github/pull-item';
@@ -15,6 +16,14 @@ function Main() {
         setPulls(data);
       });
   });
+
+  const handleClick = (id: number) => {
+    const pull = pulls()?.find(pull => pull.id === id);
+    if (!pull) {
+      return;
+    }
+    open(pull.url);
+  };
   
   return (
     <div class="w-full ov">
@@ -22,10 +31,12 @@ function Main() {
         <For each={pulls()} fallback={<Spinner />}>
           {item => (
             <PullItem
+              id={item.id}
               title={item.title}
               subtitle={`${item.owner}/${item.repo}`}
               timestamp={formatDistanceToNow(new Date(item.createdAt))}
               approved={item.approved}
+              onClick={handleClick}
             />
           )}
         </For>
