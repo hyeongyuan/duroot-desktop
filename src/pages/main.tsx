@@ -2,8 +2,8 @@ import { open } from '@tauri-apps/api/shell';
 import { createEffect, createSignal, For } from 'solid-js';
 import { formatDistanceToNow } from 'date-fns';
 import { PullItem } from '../components/github/pull-item';
-import Spinner from '../components/Spinner';
-import createLocalStorageSignal from '../hooks/createLocalStorageSignal';
+import { Spinner } from '../components/spinner';
+import { createLocalStorageSignal } from '../hooks/createLocal-storage-signal';
 import { fetchPulls, IPull } from '../utils/github-api';
 
 function Main() {
@@ -11,7 +11,7 @@ function Main() {
   const [pulls, setPulls] = createSignal<IPull[]>();
   
   createEffect(() => {
-    fetchPulls({owner: 'dunamu-stock', repo: 'stockplus-webview-sdk-fe'}, token()?.github)
+    fetchPulls({ owner: 'dunamu-stock', repo: 'stockplus-webview-sdk-fe' }, token()?.github)
       .then(data => {
         setPulls(data);
       });

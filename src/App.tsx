@@ -2,12 +2,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
 import { Show } from 'solid-js';
 import AuthPage from './pages/auth';
 import MainPage from './pages/main';
-import Spinner from './components/Spinner';
-import createLocalStorageSignal from './hooks/createLocalStorageSignal';
+import { Spinner } from './components/spinner';
+import { createLocalStorageSignal } from './hooks/createLocal-storage-signal';
 
 const queryClient = new QueryClient();
 
-function App() {
+export function App() {
   const [token, setToken] = createLocalStorageSignal<{github: string}>('token');
 
   const handleSubmit = async (token: string) => {
@@ -31,5 +31,3 @@ function App() {
     </QueryClientProvider>
   );
 }
-
-export default App;

@@ -1,7 +1,7 @@
 import { Accessor, Setter, createEffect, createSignal } from 'solid-js';
 import { getAllDatabase, updateDatabase } from '../utils/database';
 
-const createLocalStorageSignal = <T extends object>(key: string): [Accessor<T | undefined>, Setter<T>] => {
+export const createLocalStorageSignal = <T extends object>(key: string): [Accessor<T | undefined>, Setter<T>] => {
   const [value, setValue] = createSignal<T>();
 
   createEffect(() => {
@@ -32,5 +32,3 @@ const createLocalStorageSignal = <T extends object>(key: string): [Accessor<T | 
 
   return [value as Accessor<T | undefined>, handleSetValue as Setter<T>];
 };
-
-export default createLocalStorageSignal;

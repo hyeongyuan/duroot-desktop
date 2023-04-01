@@ -20,6 +20,7 @@
     "rules": {
         "semi": "warn",
         "quotes": ["warn", "single"],
+        "object-curly-spacing": ["warn", "always"],
         "no-unused-vars": "off"
     }
 }

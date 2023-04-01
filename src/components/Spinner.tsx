@@ -1,4 +1,4 @@
-function Spinner() {
+export function Spinner() {
   return (
     <div class="text-center py-8">
       <div role="status">
@@ -11,5 +11,3 @@ function Spinner() {
     </div>
   );
 }
-
-export default Spinner;
