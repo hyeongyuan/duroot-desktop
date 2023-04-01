@@ -17,14 +17,6 @@ function Main() {
       });
   });
 
-  const handleClickItem = (id: number) => {
-    const pull = pulls()?.find(pull => pull.id === id);
-    if (!pull) {
-      return;
-    }
-    open(pull.url);
-  };
-
   const handleClickAdd = () => {
     console.log('add');
   };
@@ -45,12 +37,12 @@ function Main() {
         <For each={pulls()} fallback={<Spinner />}>
           {item => (
             <PullItem
-              id={item.id}
               title={item.title}
               subtitle={`${item.owner}/${item.repo}`}
               timestamp={formatDistanceToNow(new Date(item.createdAt))}
               approved={item.approved}
-              onClick={handleClickItem}
+              titleUrl={item.url}
+              subtitleUrl={`https://github.com/${item.owner}/${item.repo}`}
             />
           )}
         </For>

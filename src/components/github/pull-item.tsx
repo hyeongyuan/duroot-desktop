@@ -2,31 +2,36 @@ import { Show } from 'solid-js';
 import { ApprovedLabel } from './approved-label';
 
 interface PullProps {
-  id: number;
   title: string;
   subtitle: string;
   timestamp: string;
   approved: boolean;
-  onClick?: (id: PullProps['id']) => void;
+  titleUrl: string;
+  subtitleUrl: string;
 }
 
 export function PullItem (props: PullProps) {
   return (
-    <li
-      class="flex flex-col px-4 py-2 cursor-pointer hover:bg-[#2d333b]"
-      onClick={() => props.onClick?.(props.id)}
-    >
+    <li class="flex flex-col px-4 py-2">
       <div class="flex items-center">
-        <p class="pr-1 text-[#768390] text-xs leading-5 line-clamp-1 break-all">
+        <a
+          class="text-[#768390] text-xs leading-5 line-clamp-1 break-all hover:underline hover:underline-offset-1 pr-1"
+          href={props.subtitleUrl}
+          target="_blank"
+        >
           {props.subtitle}
-        </p>
+        </a>
         <Show when={props.approved}>
           <ApprovedLabel />
         </Show>
       </div>
-      <h1 class="font-medium text-sm leading-6 line-clamp-3 break-all my-1">
+      <a
+        class="font-medium text-sm hover:text-[#539bf5] leading-6 line-clamp-3 break-all my-1"
+        href={props.titleUrl}
+        target="_blank"
+      >
         {props.title}
-      </h1>
+      </a>
       <p class="text-[#768390] text-xs leading-5 line-clamp-1 break-all">
         {props.timestamp}
       </p>
