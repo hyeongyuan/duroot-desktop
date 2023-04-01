@@ -1,43 +1,24 @@
-import { createSignal, For } from "solid-js";
+import { createEffect, createSignal, For } from "solid-js";
 import Pull from "../components/github/Pull";
 import Spinner from "../components/Spinner";
-
-interface IPull {
-  id: number;
-  title: string;
-  repo: string;
-  owner: string;
-  reviewers: string[];
-  user: string;
-}
-
-const mockPulls: IPull[] = [
-  {
-    id: 1,
-    title: '테스트 PR 1',
-    repo: 'repo',
-    owner: 'owner',
-    reviewers: [],
-    user: 'connor',
-  },
-  {
-    id: 2,
-    title: '테스트 PR 2',
-    repo: 'repo',
-    owner: 'owner',
-    reviewers: [],
-    user: 'connor',
-  }
-];
+import { fetchPulls, IPull } from "../utils/github-api";
 
 function Main() {
-  const [pulls] = createSignal<IPull[]>(mockPulls);
+  const [pulls, setPulls] = createSignal<IPull[]>();
+
+  createEffect(() => {
+    fetchPulls({owner: 'hyeongyuan', repo: 'chat-gpt-review'})
+      .then(data => {
+        setPulls(data);
+      });
+  });
+  
   return (
-    <div class="w-full">
+    <div class="w-full ov">
       <ul class="divide-y divide-[#373e47]">
         <For each={pulls()} fallback={<Spinner />}>
           {item => (
-            <Pull title={item.title} repo={item.repo} owner={item.owner} user={item.user} />
+            <Pull title={item.title} repo={item.repo} owner={item.owner} user={item.user} createdAt={item.createdAt} />
           )}
         </For>
       </ul>

@@ -27,7 +27,7 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div class="flex bg-[#22272e] text-[#adbac7] h-screen rounded">
+      <div class="bg-[#22272e] text-[#adbac7] h-screen rounded overflow-hidden">
         <Show when={!!database()} fallback={<Spinner />}>
           {!database()?.token?.github ? (
             <AuthPage onSubmit={handleSubmit} />
