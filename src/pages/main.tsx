@@ -26,7 +26,14 @@ function Main() {
   };
   
   return (
-    <div class="w-full ov">
+    <div class="w-full">
+      <div class="p-2">
+        <div class="inline-block hover:bg-[#2d333b] p-1 rounded-lg text-right">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 12H18M12 18V6" stroke="#768390" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
       <ul class="divide-y divide-[#373e47]">
         <For each={pulls()} fallback={<Spinner />}>
           {item => (
