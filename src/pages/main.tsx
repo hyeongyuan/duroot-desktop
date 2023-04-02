@@ -1,10 +1,10 @@
-import { open } from '@tauri-apps/api/shell';
 import { createEffect, createSignal, For } from 'solid-js';
 import { formatDistanceToNow } from 'date-fns';
 import { PullItem } from '../components/github/pull-item';
 import { Spinner } from '../components/spinner';
 import { createLocalStorageSignal } from '../hooks/createLocal-storage-signal';
-import { fetchPulls, IPull } from '../utils/github-api';
+import { fetchPulls } from '../utils/github-api';
+import type { IPull } from '../types/github';
 
 function Main() {
   const [token] = createLocalStorageSignal<{github: string}>('token');

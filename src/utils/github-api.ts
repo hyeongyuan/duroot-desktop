@@ -1,4 +1,7 @@
 import axios from 'axios';
+import type { IPull, ISearch } from '../types/github';
+
+const SELF = '@me';
 
 const instance = axios.create({
   baseURL: 'https://api.github.com',
@@ -7,21 +10,26 @@ const instance = axios.create({
   },
 });
 
+const searchIssues = async (token: string, query: string) => {
+  const { data } = await instance.get<ISearch>(`/search/issues?q=${encodeURIComponent(query)}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  data.items.map(async item => {
+    console.log(item);
+  });
+};
+
+export const fetchPullsBy = (token: string, author = SELF) => {
+  const query = `type:pr state:open author:${author}`;
+  return searchIssues(token, query);
+};
+
+
 interface IFetchPulls {
   owner: string;
   repo: string;
-}
-
-export interface IPull {
-  id: number;
-  title: string;
-  repo: string;
-  owner: string;
-  reviewers: string[];
-  user: string;
-  url: string;
-  approved: boolean;
-  createdAt: string;
 }
 
 export const fetchPulls = async ({owner, repo}: IFetchPulls, token?: string) => {
@@ -41,6 +49,10 @@ export const fetchPulls = async ({owner, repo}: IFetchPulls, token?: string) => 
     approved: true,
     createdAt: pull.created_at,
   } as IPull));
+};
+
+export const fetchPullReviews = async (token: string, pullUrl: string) => {
+
 };
 
 interface IUser {
