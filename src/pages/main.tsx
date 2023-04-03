@@ -3,7 +3,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { PullItem } from '../components/github/pull-item';
 import { Spinner } from '../components/spinner';
 import { createLocalStorageSignal } from '../hooks/createLocal-storage-signal';
-import { fetchPulls } from '../utils/github-api';
+import { fetchPullsBy } from '../utils/github-api';
 import type { IPull } from '../types/github';
 
 function Main() {
@@ -11,7 +11,7 @@ function Main() {
   const [pulls, setPulls] = createSignal<IPull[]>();
   
   createEffect(() => {
-    fetchPulls({ owner: 'dunamu-stock', repo: 'stockplus-webview-sdk-fe' }, token()?.github)
+    fetchPullsBy(token()?.github || '')
       .then(data => {
         setPulls(data);
       });

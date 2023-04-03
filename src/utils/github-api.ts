@@ -16,8 +16,18 @@ const searchIssues = async (token: string, query: string) => {
       Authorization: `Bearer ${token}`,
     },
   });
-  data.items.map(async item => {
-    console.log(item);
+  
+  return data.items.map(pull => {
+    return {
+      id: pull.id,
+      title: pull.title,
+      repo: pull.repository_url.split('/').slice(-2)[1],
+      owner: pull.repository_url.split('/').slice(-2)[0],
+      user: pull.user.login,
+      url: pull.html_url,
+      approved: true,
+      createdAt: pull.created_at,
+    } as IPull;
   });
 };
 

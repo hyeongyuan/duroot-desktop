@@ -11,11 +11,16 @@ export interface IPull {
 }
 
 export interface IIssue {
+  id: number;
   number: number;
   title: string;
   html_url: string;
   repository_url: string;
   pull_request: {url: string};
+  user: {
+    id: number;
+    login: string;
+  };
   created_at: string;
 }
 
