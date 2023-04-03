@@ -33,6 +33,12 @@ export const fetchPullRequestsBy = (token: string, author = SELF) => {
   return searchIssues(token, query);
 };
 
+
+export const fetchRequestedPullRequests = async (token: string, login = SELF) => {
+  const query = `type:pr state:open user-review-requested:${login}`;
+  return searchIssues(token, query);
+};
+
 export const fetchReviewCount = async (token: string, pullRequestUrl: string) => {
   const [pullRequest, reviews] = await Promise.all([
     fetchPullRequest(token, pullRequestUrl),

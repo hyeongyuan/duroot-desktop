@@ -3,13 +3,14 @@ import { format, formatDistanceToNow } from 'date-fns';
 import { PullItem } from '../components/github/pull-item';
 import { Spinner } from '../components/spinner';
 import { createLocalStorageSignal } from '../hooks/createLocal-storage-signal';
-import { fetchPullRequestsBy } from '../utils/github-api';
+import { fetchPullRequestsBy, fetchRequestedPullRequests } from '../utils/github-api';
 import { PullRequestListViewItem } from '../models/pull-request-list-view-item';
 
 function Main() {
   const [token] = createLocalStorageSignal<{github: string}>('token');
-  const [pullRequests, setPullRequests] = createSignal<PullRequestListViewItem[]>();
   const [lastUpdatedAt, setLastUpdatedAt] = createSignal<Date>();
+  const [myPullRequests, setMyPullRequests] = createSignal<PullRequestListViewItem[]>();
+  const [requestedPullRequests, setRequestedPullRequests] = createSignal<PullRequestListViewItem[]>();
   
   createEffect(() => {
     const githubToken = token()?.github;
@@ -22,9 +23,15 @@ function Main() {
           }));
 
           batch(() => {
-            setPullRequests(viewItems);
+            setMyPullRequests(viewItems);
             setLastUpdatedAt(new Date());
           });
+        });
+
+      fetchRequestedPullRequests(githubToken)
+        .then(async (data) => {
+          const viewItems = data.items.map(issueItem => new PullRequestListViewItem(issueItem));
+          setRequestedPullRequests(viewItems);
         });
     }
   });
@@ -52,20 +59,49 @@ function Main() {
           </p>
         </div>
       </Show>
-      <ul class="divide-y divide-[#373e47]">
-        <For each={pullRequests()} fallback={<Spinner />}>
-          {item => (
-            <PullItem
-              title={item.title}
-              subtitle={item.organization}
-              timestamp={formatDistanceToNow(item.createdAt)}
-              approved={item.approvedCount === item.reviewerCount}
-              titleUrl={item.htmlUrl}
-              subtitleUrl={`https://github.com/${item.organization}`}
-            />
-          )}
-        </For>
-      </ul>
+      <Show when={myPullRequests() && requestedPullRequests()} fallback={<Spinner />}>
+        <Show when={myPullRequests()?.length !== 0}>
+          <div class="px-4 pt-2">
+            <p class="text-[10px] border-bottom">
+              내가 만든 PR
+            </p>
+          </div>
+          <ul class="divide-y divide-[#373e47]">
+            <For each={myPullRequests()}>
+              {item => (
+                <PullItem
+                  title={item.title}
+                  subtitle={item.organization}
+                  timestamp={formatDistanceToNow(item.createdAt)}
+                  approved={item.approvedCount === item.reviewerCount}
+                  titleUrl={item.htmlUrl}
+                  subtitleUrl={`https://github.com/${item.organization}`}
+                />
+              )}
+            </For>
+          </ul>
+        </Show>
+        <Show when={requestedPullRequests()?.length !== 0}>
+          <ul class="divide-y divide-[#373e47]">
+            <div class="px-4 pt-2">
+              <p class="text-[10px] border-bottom">
+                내 리뷰를 기다리는 PR
+              </p>
+            </div>
+            <For each={requestedPullRequests()}>
+              {item => (
+                <PullItem
+                  title={item.title}
+                  subtitle={item.organization}
+                  timestamp={formatDistanceToNow(item.createdAt)}
+                  titleUrl={item.htmlUrl}
+                  subtitleUrl={`https://github.com/${item.organization}`}
+                />
+              )}
+            </For>
+          </ul>
+        </Show>
+      </Show>
     </div>
   );
 }

@@ -5,7 +5,7 @@ interface PullProps {
   title: string;
   subtitle: string;
   timestamp: string;
-  approved: boolean;
+  approved?: boolean;
   titleUrl: string;
   subtitleUrl: string;
 }
