@@ -1,30 +1,39 @@
-export interface IPull {
+type GitHubReviewState = 'PENDING' | 'APPROVED' | 'COMMENTED';
+
+interface GithubLabel {
   id: number;
-  title: string;
-  repo: string;
-  owner: string;
-  reviewers: string[];
-  user: string;
-  url: string;
-  approved: boolean;
-  createdAt: string;
+  name: string;
+  color: string;
 }
 
-export interface IIssue {
+export interface GithubUser {
+  login: string;
+}
+
+export interface GithubReview {
+  state: GitHubReviewState;
+  user: GithubUser;
+}
+
+export interface GithubPullRequest {
+  url: string;
+  requested_reviewers: GithubUser[];
+  user: GithubUser;
+}
+
+export interface GithubIssueItem {
   id: number;
   number: number;
   title: string;
   html_url: string;
   repository_url: string;
   pull_request: {url: string};
-  user: {
-    id: number;
-    login: string;
-  };
   created_at: string;
+  labels: GithubLabel[];
+  user: GithubUser;
 }
 
-export interface ISearch {
+export interface GithubSearch {
   total_count: number;
-  items: IIssue[];
+  items: GithubIssueItem[];
 }

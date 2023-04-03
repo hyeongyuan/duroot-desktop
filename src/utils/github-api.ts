@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { IPull, ISearch } from '../types/github';
+import type { GithubPullRequest, GithubReview, GithubSearch, GithubUser } from '../types/github';
 
 const SELF = '@me';
 
@@ -10,77 +10,56 @@ const instance = axios.create({
   },
 });
 
-const searchIssues = async (token: string, query: string) => {
-  const { data } = await instance.get<ISearch>(`/search/issues?q=${encodeURIComponent(query)}`, {
+export const fetchUser = async (token: string) => {
+  const { data } = await instance.get<GithubUser>('https://api.github.com/user', {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
-  
-  return data.items.map(pull => {
-    return {
-      id: pull.id,
-      title: pull.title,
-      repo: pull.repository_url.split('/').slice(-2)[1],
-      owner: pull.repository_url.split('/').slice(-2)[0],
-      user: pull.user.login,
-      url: pull.html_url,
-      approved: true,
-      createdAt: pull.created_at,
-    } as IPull;
-  });
+  return data;
 };
 
-export const fetchPullsBy = (token: string, author = SELF) => {
+const searchIssues = async (token: string, query: string) => {
+  const { data } = await instance.get<GithubSearch>(`/search/issues?q=${encodeURIComponent(query)}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return data;
+};
+
+export const fetchPullRequestsBy = (token: string, author = SELF) => {
   const query = `type:pr state:open author:${author}`;
   return searchIssues(token, query);
 };
 
+export const fetchReviewCount = async (token: string, pullRequestUrl: string) => {
+  const [pullRequest, reviews] = await Promise.all([
+    fetchPullRequest(token, pullRequestUrl),
+    fetchPullRequestReviews(token, pullRequestUrl),
+  ]);
+  const reviewMap = new Map(reviews.map(review => [review.user.login, review.state]));
 
-interface IFetchPulls {
-  owner: string;
-  repo: string;
-}
-
-export const fetchPulls = async ({owner, repo}: IFetchPulls, token?: string) => {
-  const { data: pulls } = await instance.get<any[]>(`/repos/${owner}/${repo}/pulls`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    }
-  });
-
-  return pulls.map(pull => ({
-    id: pull.number,
-    title: pull.title,
-    repo,
-    owner,
-    user: pull.user.login,
-    url: pull.html_url,
-    approved: true,
-    createdAt: pull.created_at,
-  } as IPull));
+  return {
+    approved: [...reviewMap.values()].filter(state => state === 'APPROVED').length,
+    total: reviewMap.size + pullRequest.requested_reviewers.length,
+  };
 };
 
-export const fetchPullReviews = async (token: string, pullUrl: string) => {
-
-};
-
-interface IUser {
-  id: number;
-  username: string;
-  displayName: string;
-}
-
-export const fetchUser = async (token: string) => {
-  const { data: user } = await instance.get('https://api.github.com/user', {
+const fetchPullRequest = async (token: string, pullRequestUrl: string) => {
+  const { data } = await instance.get<GithubPullRequest>(pullRequestUrl, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
+  return data;
+};
 
-  return {
-    id: user.id,
-    username: user.login,
-    displayName: user.name,
-  } as IUser;
+const fetchPullRequestReviews = async (token: string, pullRequestUrl: string) => {
+  const { data } = await instance.get<GithubReview[]>(`${pullRequestUrl}/reviews`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return data;
 };

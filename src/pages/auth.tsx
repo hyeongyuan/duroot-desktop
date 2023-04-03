@@ -19,7 +19,7 @@ function Auth(props: AuthProps) {
     try {
       const user = await fetchUser(token());
 
-      alert(`${user.displayName} 님 환영합니다!`);
+      alert(`${user.login} 님 환영합니다!`);
       
       props.onSubmit?.(token());
     } catch (err) {

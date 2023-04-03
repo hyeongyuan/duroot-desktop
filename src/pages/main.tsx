@@ -3,18 +3,26 @@ import { formatDistanceToNow } from 'date-fns';
 import { PullItem } from '../components/github/pull-item';
 import { Spinner } from '../components/spinner';
 import { createLocalStorageSignal } from '../hooks/createLocal-storage-signal';
-import { fetchPullsBy } from '../utils/github-api';
-import type { IPull } from '../types/github';
+import { fetchPullRequestsBy } from '../utils/github-api';
+import { PullRequestListViewItem } from '../models/pull-request-list-view-item';
 
 function Main() {
   const [token] = createLocalStorageSignal<{github: string}>('token');
-  const [pulls, setPulls] = createSignal<IPull[]>();
+  const [pullRequests, setPullRequests] = createSignal<PullRequestListViewItem[]>();
   
   createEffect(() => {
-    fetchPullsBy(token()?.github || '')
-      .then(data => {
-        setPulls(data);
-      });
+    const githubToken = token()?.github;
+    if (githubToken) {
+      fetchPullRequestsBy(githubToken)
+        .then(async (data) => {
+          const viewItems = await Promise.all(data.items.map(issueItem => {
+            const viewItem = new PullRequestListViewItem(issueItem);
+            return viewItem.loadReviewerCount(githubToken).then(() => viewItem);
+          }));
+
+          setPullRequests(viewItems);
+        });
+    }
   });
 
   const handleClickAdd = () => {
@@ -34,15 +42,15 @@ function Main() {
         </div>
       </div>
       <ul class="divide-y divide-[#373e47]">
-        <For each={pulls()} fallback={<Spinner />}>
+        <For each={pullRequests()} fallback={<Spinner />}>
           {item => (
             <PullItem
               title={item.title}
-              subtitle={`${item.owner}/${item.repo}`}
-              timestamp={formatDistanceToNow(new Date(item.createdAt))}
-              approved={item.approved}
-              titleUrl={item.url}
-              subtitleUrl={`https://github.com/${item.owner}/${item.repo}`}
+              subtitle={item.organization}
+              timestamp={formatDistanceToNow(item.createdAt)}
+              approved={item.approvedCount === item.reviewerCount}
+              titleUrl={item.htmlUrl}
+              subtitleUrl={`https://github.com/${item.organization}`}
             />
           )}
         </For>
