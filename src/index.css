@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+html,
+body {
+  overflow:hidden;
+  -webkit-overflow-scrolling:touch;
+}
+
 input,
 button {
   outline: none;
