@@ -1,27 +1,35 @@
 import { createSignal, Show } from 'solid-js';
+import { useNavigate } from '@solidjs/router';
 import { AxiosError } from 'axios';
 import Input from '../components/common/input';
+import { createLocalStorageSignal } from '../hooks/createLocal-storage-signal';
 import { fetchUser } from '../utils/github-api';
 
 const ERROR_MESSAGE: Record<number, string> = {
   401: '올바른 토큰이 아닙니다.',
 };
 
-interface AuthProps {
-  onSubmit?: (token: string) => void;
-}
-
-function Auth(props: AuthProps) {
-  const [token, setToken] = createSignal('');
+function Auth() {
+  const navigate = useNavigate();
+  const [value, setValue] = createSignal('');
   const [message, setMessage] = createSignal('');
+  const [, setLocalToken] = createLocalStorageSignal<{github: string}>('token');
 
   const handleSubmit = async () => {
     try {
-      const user = await fetchUser(token());
+      const token = value();
+      if (!token) {
+        return;
+      }
+      const user = await fetchUser(token);
 
       alert(`${user.login} 님 환영합니다!`);
-      
-      props.onSubmit?.(token());
+
+      await setLocalToken(prevToken => ({
+        ...prevToken,
+        github: token,
+      }));
+      navigate('/');
     } catch (err) {
       const error = err as AxiosError;
       const { status } = error.response || { status: 599 };
@@ -40,10 +48,10 @@ function Auth(props: AuthProps) {
           <div class="mr-2">
             <Input
               placeholder="Please enter your token"
-              value={token()}
+              value={value()}
               onInput={(e) => {
                 setMessage('');
-                setToken(e.currentTarget.value);
+                setValue(e.currentTarget.value);
               }}
             />
             <Show when={!!message()}>

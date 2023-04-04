@@ -1,33 +1,25 @@
+import { lazy } from 'solid-js';
+import { Route, Routes } from '@solidjs/router';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
-import { Show } from 'solid-js';
-import AuthPage from './pages/auth';
-import MainPage from './pages/main';
-import { Spinner } from './components/spinner';
-import { createLocalStorageSignal } from './hooks/createLocal-storage-signal';
+
+const Home = lazy(() => import('./pages/home'));
+const Auth = lazy(() => import('./pages/auth'));
+const Main = lazy(() => import('./pages/main'));
 
 const queryClient = new QueryClient();
 
-export function App() {
-  const [token, setToken] = createLocalStorageSignal<{github: string}>('token');
-
-  const handleSubmit = async (token: string) => {
-    setToken(prevToken => ({
-      ...prevToken,
-      github: token,
-    }));
-  };
-
+function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <div class="bg-[#22272e] text-[#adbac7] h-screen rounded-md overflow-hidden">
-        <Show when={!!token()} fallback={<Spinner />}>
-          {!token()?.github ? (
-            <AuthPage onSubmit={handleSubmit} />
-          ) : (
-            <MainPage />
-          )}
-        </Show>
+        <Routes>
+          <Route path="/" component={Home} />
+          <Route path="/auth" component={Auth} />
+          <Route path="/main" component={Main} />
+        </Routes>
       </div>
     </QueryClientProvider>
   );
 }
+
+export default App;
