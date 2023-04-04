@@ -2,11 +2,17 @@ import { batch, createEffect, createSignal, For, Show } from 'solid-js';
 import { format, formatDistanceToNow } from 'date-fns';
 import { PullItem } from '../components/github/pull-item';
 import { Spinner } from '../components/spinner';
+import { Header } from '../components/github/header';
 import { useAuthStore } from '../stores/auth';
 import { fetchPullRequestsBy, fetchRequestedPullRequests } from '../utils/github-api';
 import { PullRequestListViewItem } from '../models/pull-request-list-view-item';
+import { createTabsSignal, TabKey } from '../hooks/create-tabs-signal';
+
+const WINDOW_HEIGHT = 500;
+const HEADER_HEIGHT = 44;
 
 function Main() {
+  const tabState = createTabsSignal();
   const [lastUpdatedAt, setLastUpdatedAt] = createSignal<Date>();
   const [myPullRequests, setMyPullRequests] = createSignal<PullRequestListViewItem[]>();
   const [requestedPullRequests, setRequestedPullRequests] = createSignal<PullRequestListViewItem[]>();
@@ -36,72 +42,52 @@ function Main() {
     }
   });
 
-  const handleClickAdd = () => {
-    console.log('add');
-  };
-  
   return (
     <div class="w-full">
-      <div class="bg-[#2d333b] px-1 pt-1 border border-[#373e47]">
-        <div
-          class="inline-block p-1 cursor-pointer"
-          onClick={() => handleClickAdd()}
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M6 12H18M12 18V6" stroke="#768390" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-      </div>
-      <Show when={!!lastUpdatedAt()}>
-        <div class="py-2">
-          <p class="text-[#768390] text-[10px] text-center">
-            {`마지막 업데이트 ${format(lastUpdatedAt() as Date, 'yyyy년 MM월 dd일 HH시 mm분')}`}
-          </p>
-        </div>
-      </Show>
-      <Show when={myPullRequests() && requestedPullRequests()} fallback={<Spinner />}>
-        <Show when={myPullRequests()?.length !== 0}>
-          <div class="px-4 pt-2">
-            <p class="text-[10px] border-bottom">
-              내가 만든 PR
+      <Header tabs={tabState().tabs} activeTab={tabState().activeTab} />
+
+      <div style={{ height: `${WINDOW_HEIGHT - HEADER_HEIGHT}px` }} class="overflow-y-auto">
+        <Show when={!!lastUpdatedAt()}>
+          <div class="py-2">
+            <p class="text-[#768390] text-[10px] text-center">
+              {`마지막 업데이트 ${format(lastUpdatedAt() as Date, 'yyyy년 MM월 dd일 HH시 mm분')}`}
             </p>
           </div>
-          <ul class="divide-y divide-[#373e47]">
-            <For each={myPullRequests()}>
-              {item => (
-                <PullItem
-                  title={item.title}
-                  subtitle={item.organization}
-                  timestamp={formatDistanceToNow(item.createdAt)}
-                  approved={item.approvedCount === item.reviewerCount}
-                  titleUrl={item.htmlUrl}
-                  subtitleUrl={`https://github.com/${item.organization}`}
-                />
-              )}
-            </For>
-          </ul>
         </Show>
-        <Show when={requestedPullRequests()?.length !== 0}>
-          <ul class="divide-y divide-[#373e47]">
-            <div class="px-4 pt-2">
-              <p class="text-[10px] border-bottom">
-                내 리뷰를 기다리는 PR
-              </p>
-            </div>
-            <For each={requestedPullRequests()}>
-              {item => (
-                <PullItem
-                  title={item.title}
-                  subtitle={item.organization}
-                  timestamp={formatDistanceToNow(item.createdAt)}
-                  titleUrl={item.htmlUrl}
-                  subtitleUrl={`https://github.com/${item.organization}`}
-                />
-              )}
-            </For>
-          </ul>
+        <Show when={myPullRequests() && requestedPullRequests()} fallback={<Spinner />}>
+          <Show when={tabState().activeTab === TabKey.MY_PULL_REQUESTS &&  myPullRequests()?.length !== 0}>
+            <ul class="divide-y divide-[#373e47]">
+              <For each={myPullRequests()}>
+                {item => (
+                  <PullItem
+                    title={item.title}
+                    subtitle={item.organization}
+                    timestamp={formatDistanceToNow(item.createdAt)}
+                    approved={item.approvedCount === item.reviewerCount}
+                    titleUrl={item.htmlUrl}
+                    subtitleUrl={`https://github.com/${item.organization}`}
+                  />
+                )}
+              </For>
+            </ul>
+          </Show>
+          <Show when={tabState().activeTab === TabKey.REQUESTED_PULL_REQUESTS && requestedPullRequests()?.length !== 0}>
+            <ul class="divide-y divide-[#373e47]">
+              <For each={requestedPullRequests()}>
+                {item => (
+                  <PullItem
+                    title={item.title}
+                    subtitle={item.organization}
+                    timestamp={formatDistanceToNow(item.createdAt)}
+                    titleUrl={item.htmlUrl}
+                    subtitleUrl={`https://github.com/${item.organization}`}
+                  />
+                )}
+              </For>
+            </ul>
+          </Show>
         </Show>
-      </Show>
+      </div>
     </div>
   );
 }
