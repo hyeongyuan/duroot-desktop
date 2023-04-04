@@ -2,18 +2,18 @@ import { batch, createEffect, createSignal, For, Show } from 'solid-js';
 import { format, formatDistanceToNow } from 'date-fns';
 import { PullItem } from '../components/github/pull-item';
 import { Spinner } from '../components/spinner';
-import { createLocalStorageSignal } from '../hooks/createLocal-storage-signal';
+import { useAuthStore } from '../stores/auth';
 import { fetchPullRequestsBy, fetchRequestedPullRequests } from '../utils/github-api';
 import { PullRequestListViewItem } from '../models/pull-request-list-view-item';
 
 function Main() {
-  const [token] = createLocalStorageSignal<{github: string}>('token');
   const [lastUpdatedAt, setLastUpdatedAt] = createSignal<Date>();
   const [myPullRequests, setMyPullRequests] = createSignal<PullRequestListViewItem[]>();
   const [requestedPullRequests, setRequestedPullRequests] = createSignal<PullRequestListViewItem[]>();
-  
+  const [authStore] = useAuthStore();
+
   createEffect(() => {
-    const githubToken = token()?.github;
+    const githubToken = authStore()?.token;
     if (githubToken) {
       fetchPullRequestsBy(githubToken)
         .then(async (data) => {

@@ -2,7 +2,8 @@ import { createSignal, Show } from 'solid-js';
 import { useNavigate } from '@solidjs/router';
 import { AxiosError } from 'axios';
 import Input from '../components/common/input';
-import { createLocalStorageSignal } from '../hooks/createLocal-storage-signal';
+import { createLocalStorageSignal } from '../hooks/create-local-storage-signal';
+import { useAuthStore } from '../stores/auth';
 import { fetchUser } from '../utils/github-api';
 
 const ERROR_MESSAGE: Record<number, string> = {
@@ -14,6 +15,7 @@ function Auth() {
   const [value, setValue] = createSignal('');
   const [message, setMessage] = createSignal('');
   const [, setLocalToken] = createLocalStorageSignal<{github: string}>('token');
+  const [, setAuthStore] = useAuthStore();
 
   const handleSubmit = async () => {
     try {
@@ -29,7 +31,9 @@ function Auth() {
         ...prevToken,
         github: token,
       }));
-      navigate('/');
+      setAuthStore({ token, login: user.login });
+
+      navigate('/main');
     } catch (err) {
       const error = err as AxiosError;
       const { status } = error.response || { status: 599 };
