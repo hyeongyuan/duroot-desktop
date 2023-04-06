@@ -4,7 +4,7 @@ import { PullItem } from '../components/github/pull-item';
 import { Spinner } from '../components/spinner';
 import { Header } from '../components/github/header';
 import { useAuthStore } from '../stores/auth';
-import { fetchPullRequestsBy, fetchRequestedPullRequests } from '../utils/github-api';
+import { fetchPullRequestsBy, fetchRequestedPullRequests, fetchReviewedPullRequests } from '../utils/github-api';
 import { PullRequestListViewItem } from '../models/pull-request-list-view-item';
 import { createTabsSignal, TabKey } from '../hooks/create-tabs-signal';
 
@@ -38,6 +38,14 @@ function Main() {
         .then(async (data) => {
           const viewItems = data.items.map(issueItem => new PullRequestListViewItem(issueItem));
           setRequestedPullRequests(viewItems);
+        });
+
+      fetchReviewedPullRequests(githubToken)
+        .then(async ({ approvedItems, reviewedItems }) => {
+          const approvedViewItems = approvedItems.map(issueItem => new PullRequestListViewItem(issueItem));
+          const reviewedViewItems = reviewedItems.map(issueItem => new PullRequestListViewItem(issueItem));
+
+          console.log({ approvedViewItems, reviewedViewItems });
         });
     }
   });
