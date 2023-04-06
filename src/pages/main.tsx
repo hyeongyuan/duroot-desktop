@@ -20,13 +20,14 @@ function Main() {
   const query = createQuery(() => ['pulls', tabState().activeTab], async ({ queryKey }) => {
     const [_, activeTab] = queryKey;
     const githubToken = authStore()?.token;
+    const githubLogin = authStore()?.login;
 
-    if (!githubToken) {
+    if (!githubToken || !githubLogin) {
       return;
     }
 
     if (activeTab === TabKey.MY_PULL_REQUESTS) {
-      const data = await fetchPullRequestsBy(githubToken)
+      const data = await fetchPullRequestsBy(githubToken);
       const viewItems = await Promise.all(data.items.map(issueItem => {
         const viewItem = new PullRequestListViewItem(issueItem);
         return viewItem.loadReviewerCount(githubToken).then(() => viewItem);
@@ -37,11 +38,11 @@ function Main() {
       const viewItems = data.items.map(issueItem => new PullRequestListViewItem(issueItem));
       return viewItems;
     } else if (activeTab === TabKey.REVIEWED_PULL_REQUESTS) {
-      const { reviewedItems } = await fetchReviewedPullRequests(githubToken);
+      const { reviewedItems } = await fetchReviewedPullRequests(githubToken, githubLogin);
       const reviewedViewItems = reviewedItems.map(issueItem => new PullRequestListViewItem(issueItem));
       return reviewedViewItems;
     } else if (activeTab === TabKey.APPROVED_PULL_REQUESTS) {
-      const { approvedItems } = await fetchReviewedPullRequests(githubToken);
+      const { approvedItems } = await fetchReviewedPullRequests(githubToken, githubLogin);
       const approvedViewItems = approvedItems.map(issueItem => new PullRequestListViewItem(issueItem));
       return approvedViewItems;
     }

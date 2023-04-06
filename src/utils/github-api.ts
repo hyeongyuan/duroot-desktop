@@ -39,18 +39,20 @@ export const fetchRequestedPullRequests = async (token: string, login = SELF) =>
   return searchIssues(token, query);
 };
 
-export const fetchReviewedPullRequests = async (token: string, login = SELF) => {
+export const fetchReviewedPullRequests = async (token: string, login: string) => {
   const query = `type:pr state:open reviewed-by:${login}`;
   const { items: issueItems } = await searchIssues(token, query);
+
+  const exceptByLogin = issueItems.filter(item => item.user.login !== login);
   const approvedChecks = await Promise.all(
-    issueItems.map(item => fetchPullRequest(token, item.pull_request.url).then(pullRequest => (
+    exceptByLogin.map(item => fetchPullRequest(token, item.pull_request.url).then(pullRequest => (
       pullRequest.requested_reviewers.every(reviewer => reviewer.login !== login)
     )))
   );
 
   return {
-    approvedItems: issueItems.filter((_, i) => approvedChecks[i]),
-    reviewedItems: issueItems.filter((_, i) => !approvedChecks[i]),
+    approvedItems: exceptByLogin.filter((_, i) => approvedChecks[i]),
+    reviewedItems: exceptByLogin.filter((_, i) => !approvedChecks[i]),
   };
 };
 
