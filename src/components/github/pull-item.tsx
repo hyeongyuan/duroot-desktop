@@ -32,7 +32,7 @@ export function PullItem (props: PullProps) {
       >
         {props.title}
       </a>
-      <p class="text-[#768390] text-xs leading-5 line-clamp-1 break-all">
+      <p class="text-[#768390] text-[10px] leading-5 line-clamp-1 break-all">
         {props.timestamp}
       </p>
     </li>
