@@ -17,10 +17,10 @@ export function Header(props: HeaderProps) {
     >
       <For each={props.tabs}>
         {tab => (
-          <li class={`p-2 ${props.activeTab === tab.key ? 'border-b-2' : ''} border-[#ec775c]`}>
+          <li class={`py-2 ${props.activeTab === tab.key ? 'border-[#ec775c]' : 'border-[transparent]'} border-b-2`}>
             <A
               href={`/main?tab=${tab.key}`}
-              class={`text-xs cursor-pointer ${props.activeTab === tab.key ? 'text-[#e6edf3]': ''} hover:text-[#e6edf3]`}
+              class={`p-2 text-xs cursor-pointer ${props.activeTab === tab.key ? 'text-[#e6edf3]': ''} hover:text-[#e6edf3]`}
             >
               {tab.name}
             </A>
