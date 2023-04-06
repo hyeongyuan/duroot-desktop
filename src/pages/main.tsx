@@ -1,11 +1,12 @@
 import { For, Show } from 'solid-js';
 import { createQuery } from '@tanstack/solid-query';
-import { format, formatDistanceToNow } from 'date-fns';
+import { format } from 'date-fns';
 import { PullItem } from '../components/github/pull-item';
 import { Spinner } from '../components/spinner';
 import { Header } from '../components/github/header';
 import { useAuthStore } from '../stores/auth';
 import { fetchPullRequestsBy, fetchRequestedPullRequests, fetchReviewedPullRequests } from '../utils/github-api';
+import { formatDistanceToNow } from '../utils/date';
 import { PullRequestListViewItem } from '../models/pull-request-list-view-item';
 import { createTabsSignal, TabKey } from '../hooks/create-tabs-signal';
 
