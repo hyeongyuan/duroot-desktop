@@ -1,4 +1,5 @@
-import { batch, createEffect, createSignal, For, Show } from 'solid-js';
+import { For, Show } from 'solid-js';
+import { createQuery } from '@tanstack/solid-query';
 import { format, formatDistanceToNow } from 'date-fns';
 import { PullItem } from '../components/github/pull-item';
 import { Spinner } from '../components/spinner';
@@ -13,40 +14,35 @@ const HEADER_HEIGHT = 44;
 
 function Main() {
   const tabState = createTabsSignal();
-  const [lastUpdatedAt, setLastUpdatedAt] = createSignal<Date>();
-  const [myPullRequests, setMyPullRequests] = createSignal<PullRequestListViewItem[]>();
-  const [requestedPullRequests, setRequestedPullRequests] = createSignal<PullRequestListViewItem[]>();
   const [authStore] = useAuthStore();
 
-  createEffect(() => {
+  const query = createQuery(() => ['pulls', tabState().activeTab], async ({ queryKey }) => {
+    const [_, activeTab] = queryKey;
     const githubToken = authStore()?.token;
-    if (githubToken) {
-      fetchPullRequestsBy(githubToken)
-        .then(async (data) => {
-          const viewItems = await Promise.all(data.items.map(issueItem => {
-            const viewItem = new PullRequestListViewItem(issueItem);
-            return viewItem.loadReviewerCount(githubToken).then(() => viewItem);
-          }));
 
-          batch(() => {
-            setMyPullRequests(viewItems);
-            setLastUpdatedAt(new Date());
-          });
-        });
+    if (!githubToken) {
+      return;
+    }
 
-      fetchRequestedPullRequests(githubToken)
-        .then(async (data) => {
-          const viewItems = data.items.map(issueItem => new PullRequestListViewItem(issueItem));
-          setRequestedPullRequests(viewItems);
-        });
-
-      fetchReviewedPullRequests(githubToken)
-        .then(async ({ approvedItems, reviewedItems }) => {
-          const approvedViewItems = approvedItems.map(issueItem => new PullRequestListViewItem(issueItem));
-          const reviewedViewItems = reviewedItems.map(issueItem => new PullRequestListViewItem(issueItem));
-
-          console.log({ approvedViewItems, reviewedViewItems });
-        });
+    if (activeTab === TabKey.MY_PULL_REQUESTS) {
+      const data = await fetchPullRequestsBy(githubToken)
+      const viewItems = await Promise.all(data.items.map(issueItem => {
+        const viewItem = new PullRequestListViewItem(issueItem);
+        return viewItem.loadReviewerCount(githubToken).then(() => viewItem);
+      }));
+      return viewItems;
+    } else if (activeTab === TabKey.REQUESTED_PULL_REQUESTS) {
+      const data = await fetchRequestedPullRequests(githubToken);
+      const viewItems = data.items.map(issueItem => new PullRequestListViewItem(issueItem));
+      return viewItems;
+    } else if (activeTab === TabKey.REVIEWED_PULL_REQUESTS) {
+      const { reviewedItems } = await fetchReviewedPullRequests(githubToken);
+      const reviewedViewItems = reviewedItems.map(issueItem => new PullRequestListViewItem(issueItem));
+      return reviewedViewItems;
+    } else if (activeTab === TabKey.APPROVED_PULL_REQUESTS) {
+      const { approvedItems } = await fetchReviewedPullRequests(githubToken);
+      const approvedViewItems = approvedItems.map(issueItem => new PullRequestListViewItem(issueItem));
+      return approvedViewItems;
     }
   });
 
@@ -55,38 +51,30 @@ function Main() {
       <Header tabs={tabState().tabs} activeTab={tabState().activeTab} />
 
       <div style={{ height: `${WINDOW_HEIGHT - HEADER_HEIGHT}px` }} class="overflow-y-auto">
-        <Show when={!!lastUpdatedAt()}>
+        <Show when={query.dataUpdatedAt}>
           <div class="py-2">
             <p class="text-[#768390] text-[10px] text-center">
-              {`마지막 업데이트 ${format(lastUpdatedAt() as Date, 'yyyy년 MM월 dd일 HH시 mm분')}`}
+              {`마지막 업데이트 ${format(query.dataUpdatedAt, 'HH시 mm분 ss초')}`}
             </p>
           </div>
         </Show>
-        <Show when={myPullRequests() && requestedPullRequests()} fallback={<Spinner />}>
-          <Show when={tabState().activeTab === TabKey.MY_PULL_REQUESTS &&  myPullRequests()?.length !== 0}>
-            <ul class="divide-y divide-[#373e47]">
-              <For each={myPullRequests()}>
-                {item => (
-                  <PullItem
-                    title={item.title}
-                    subtitle={item.organization}
-                    timestamp={formatDistanceToNow(item.createdAt)}
-                    approved={item.approvedCount === item.reviewerCount}
-                    titleUrl={item.htmlUrl}
-                    subtitleUrl={`https://github.com/${item.organization}`}
-                  />
-                )}
-              </For>
-            </ul>
+        <Show when={!query.isLoading} fallback={<Spinner />}>
+          <Show when={query.data && query.data.length === 0}>
+            <div class="p-24">
+              <p class="text-[#768390] text-sm text-center">
+                {'데이터가 없습니다.'}
+              </p>
+            </div>
           </Show>
-          <Show when={tabState().activeTab === TabKey.REQUESTED_PULL_REQUESTS && requestedPullRequests()?.length !== 0}>
+          <Show when={query.data && query.data.length !== 0}>
             <ul class="divide-y divide-[#373e47]">
-              <For each={requestedPullRequests()}>
+              <For each={query.data}>
                 {item => (
                   <PullItem
                     title={item.title}
                     subtitle={item.organization}
                     timestamp={formatDistanceToNow(item.createdAt)}
+                    approved={!!(item.approvedCount && item.reviewerCount) && item.approvedCount === item.reviewerCount}
                     titleUrl={item.htmlUrl}
                     subtitleUrl={`https://github.com/${item.organization}`}
                   />
