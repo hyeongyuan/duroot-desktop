@@ -10,12 +10,34 @@ import { formatDistanceToNow } from '../utils/date';
 import { PullRequestListViewItem } from '../models/pull-request-list-view-item';
 import { createTabsSignal, TabKey } from '../hooks/create-tabs-signal';
 
-const WINDOW_HEIGHT = 500;
+const WINDOW_HEIGHT = 560;
 const HEADER_HEIGHT = 44;
 
 function Main() {
   const tabState = createTabsSignal();
   const [authStore] = useAuthStore();
+
+  const countQuery = createQuery<any, any,Record<TabKey, number>>(() => ['counts'], async () => {
+    const githubToken = authStore()?.token;
+    const githubLogin = authStore()?.login;
+
+    if (!githubToken || !githubLogin) {
+      return;
+    }
+
+    const [myPulls, requestedPulls, reviewedPulls] = await Promise.all([
+      fetchPullRequestsBy(githubToken),
+      fetchRequestedPullRequests(githubToken),
+      fetchReviewedPullRequests(githubToken, githubLogin),
+    ]);
+
+    return {
+      [TabKey.MY_PULL_REQUESTS]: myPulls.total_count,
+      [TabKey.REQUESTED_PULL_REQUESTS]: requestedPulls.total_count,
+      [TabKey.REVIEWED_PULL_REQUESTS]: reviewedPulls.reviewedItems.length,
+      [TabKey.APPROVED_PULL_REQUESTS]: reviewedPulls.approvedItems.length,
+    };
+  });
 
   const query = createQuery(() => ['pulls', tabState().activeTab], async ({ queryKey }) => {
     const [_, activeTab] = queryKey;
@@ -50,7 +72,10 @@ function Main() {
 
   return (
     <div class="w-full">
-      <Header tabs={tabState().tabs} activeTab={tabState().activeTab} />
+      <Header
+        tabs={tabState().tabs.map(tab => ({ ...tab, count: countQuery.data?.[tab.key] }))}
+        activeTab={tabState().activeTab}
+      />
 
       <div style={{ height: `${WINDOW_HEIGHT - HEADER_HEIGHT}px` }} class="overflow-y-auto">
         <Show when={query.dataUpdatedAt}>

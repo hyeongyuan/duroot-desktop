@@ -11,6 +11,7 @@ export enum TabKey {
 export interface Tab {
   name: string;
   key: TabKey;
+  count?: number;
 }
 
 interface TabState {
