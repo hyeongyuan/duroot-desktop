@@ -5,6 +5,7 @@ import Input from '../components/common/input';
 import { createLocalStorageSignal } from '../hooks/create-local-storage-signal';
 import { useAuthStore } from '../stores/auth';
 import { fetchUser } from '../utils/github-api';
+import logo from '../assets/logo.png';
 
 const ERROR_MESSAGE: Record<number, string> = {
   401: '올바른 토큰이 아닙니다.',
@@ -44,9 +45,9 @@ function Auth() {
 
   return (
     <div class='flex flex-1 justify-center'>
-      <div class="my-32">
+      <div class="my-28">
         <div class="mb-24">
-          <h1 class="text-4xl text-center">Duroot</h1>
+          <img src={logo} alt="logo" />
         </div>
         <div class='flex'>
           <div class="mr-2">
@@ -59,7 +60,7 @@ function Auth() {
               }}
             />
             <Show when={!!message()}>
-              <p class="mt-2 text-xs">
+              <p class="ml-1 mt-2 text-xs text-[#e5534b]">
                 {message()}
               </p>
             </Show>
