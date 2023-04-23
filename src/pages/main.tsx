@@ -2,7 +2,7 @@ import { For, Show } from 'solid-js';
 import { createQuery } from '@tanstack/solid-query';
 import { format } from 'date-fns';
 import { PullItem } from '../components/github/pull-item';
-import { Spinner } from '../components/spinner';
+import { Spinner } from '../components/common/spinner';
 import { Header } from '../components/github/header';
 import { useAuthStore } from '../stores/auth';
 import { fetchPullRequestsBy, fetchRequestedPullRequests, fetchReviewedPullRequests } from '../utils/github-api';
