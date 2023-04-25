@@ -10,7 +10,7 @@ import { formatDistanceToNow } from '../utils/date';
 import { PullRequestListViewItem } from '../models/pull-request-list-view-item';
 import { createTabsSignal, TabKey } from '../hooks/create-tabs-signal';
 
-const WINDOW_HEIGHT = 560;
+const WINDOW_HEIGHT = 500;
 const HEADER_HEIGHT = 44;
 
 function Main() {
