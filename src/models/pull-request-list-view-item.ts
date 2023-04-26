@@ -30,7 +30,7 @@ export class PullRequestListViewItem {
   }
 
   async loadReviewerCount (token: string) {
-    const fetchResult = await fetchReviewCount(token, this.pullRequestUrl);
+    const fetchResult = await fetchReviewCount(token, this.pullRequestUrl, this.login);
 
     this.reviewerCount = fetchResult.total;
     this.approvedCount = fetchResult.approved;

@@ -1,4 +1,4 @@
-type GitHubReviewState = 'PENDING' | 'APPROVED' | 'COMMENTED';
+export type GitHubReviewState = 'PENDING' | 'APPROVED' | 'COMMENTED';
 
 interface GithubLabel {
   id: number;
