@@ -1,12 +1,11 @@
 import { For, Show } from 'solid-js';
 import { createQuery } from '@tanstack/solid-query';
-import { format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import { PullItem } from '../components/github/pull-item';
 import { Spinner } from '../components/common/spinner';
 import { Header } from '../components/github/header';
 import { useAuthStore } from '../stores/auth';
 import { fetchPullRequestsBy, fetchRequestedPullRequests, fetchReviewedPullRequests } from '../utils/github-api';
-import { formatDistanceToNow } from '../utils/date';
 import { PullRequestListViewItem } from '../models/pull-request-list-view-item';
 import { createTabsSignal, TabKey } from '../hooks/create-tabs-signal';
 
@@ -81,7 +80,7 @@ function Main() {
         <Show when={query.dataUpdatedAt}>
           <div class="py-2">
             <p class="text-[#768390] text-[10px] text-center">
-              {`마지막 업데이트 ${format(query.dataUpdatedAt, 'HH시 mm분 ss초')}`}
+              {`Last Update ${format(query.dataUpdatedAt, 'HH\'h\' mm\'m\' ss\'s\'')}`}
             </p>
           </div>
         </Show>
