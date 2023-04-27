@@ -4,7 +4,7 @@ import { ApprovedLabel } from './approved-label';
 interface PullProps {
   title: string;
   subtitle: string;
-  timestamp: string;
+  caption?: string;
   approved?: boolean;
   titleUrl: string;
   subtitleUrl: string;
@@ -32,9 +32,11 @@ export function PullItem (props: PullProps) {
       >
         {props.title}
       </a>
-      <p class="text-[#768390] text-[10px] leading-5 line-clamp-1 break-all">
-        {props.timestamp}
-      </p>
+      <Show when={!!props.caption}>
+        <p class="text-[#768390] text-[10px] leading-5 line-clamp-1 break-all">
+          {props.caption}
+        </p>
+      </Show>
     </li>
   );
 }

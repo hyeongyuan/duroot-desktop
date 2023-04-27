@@ -100,7 +100,7 @@ function Main() {
                   <PullItem
                     title={item.title}
                     subtitle={item.organization}
-                    timestamp={formatDistanceToNow(item.createdAt)}
+                    caption={`${item.login} · ${formatDistanceToNow(item.createdAt)}`}
                     approved={!!(item.approvedCount && item.reviewerCount) && item.approvedCount === item.reviewerCount}
                     titleUrl={item.htmlUrl}
                     subtitleUrl={`https://github.com/${item.organization}`}
