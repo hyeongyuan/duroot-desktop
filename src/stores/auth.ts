@@ -1,6 +1,6 @@
 import { Accessor, Setter, createSignal } from 'solid-js';
 
-interface AuthStore {
+export interface AuthStore {
   token: string;
   login: string;
 }
