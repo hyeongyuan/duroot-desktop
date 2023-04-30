@@ -10,4 +10,4 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Update gist
-        uses: ./update-gist
+        uses: ./.github/update-gist
