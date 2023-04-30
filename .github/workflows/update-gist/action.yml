@@ -1,0 +1,6 @@
+name: 'Update gist'
+description: 'Update gist for application updates'
+
+runs:
+  using: 'node16'
+  main: 'index.js'
