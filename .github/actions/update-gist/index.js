@@ -13,9 +13,37 @@ const getGist = async id => {
   return JSON.parse(content);
 };
 
+const updateGist = async (id, content) => {
+  await axios.patch(`https://api.github.com/gists/${id}`, {
+    files: {
+      ['latest-version.json']: content,
+    },
+  }, {
+    headers: {
+      Authorization: `Bearer ${core.getInput('token')}`,
+    },
+  });
+};
+
+const updateGistContent = (content, { version, signature }) => {
+  return {
+    ...content,
+    version,
+    pub_date: new Date().toISOString(),
+    platforms: {
+      ...content.platforms,
+      [PLATFORM_MAC]: {
+        ...content.platforms[PLATFORM_MAC],
+        url: `https://github.com/hyeongyuan/duroot-desktop/releases/download/release-${version}/Duroot.app.tar.gz`,
+        signature,
+      },
+    },
+  };
+};
+
+
 const run = async () => {
   try {
-    // Get the JSON webhook payload for the event that triggered the workflow
     const payload = JSON.stringify(github.context.payload, undefined, 2);
     console.log(`The event payload: ${payload}`);
 
@@ -23,23 +51,21 @@ const run = async () => {
     const [, nextVersion] = tag_name.split('-');
 
     const sigAsset = assets.find(asset => asset.name.includes('.sig'));
-
-    const { data: sigData } = await axios.get(sigAsset.browser_download_url);
-
-    console.log(sigData);
+    if (!sigAsset) {
+      core.setFailed('Not found .sig file');
+      return;
+    }
+    const { data: sigContent } = await axios.get(sigAsset.browser_download_url);
   
-    const latestVersion = await getGist(GIST_ID);
+    const gistContent = await getGist(GIST_ID);
 
-    latestVersion.version = nextVersion;
-    latestVersion.pub_date = new Date().toISOString();
-    latestVersion.platforms[PLATFORM_MAC].url = `https://github.com/hyeongyuan/duroot-desktop/releases/download/release-${nextVersion}/Duroot.app.tar.gz`;
-    latestVersion.platforms[PLATFORM_MAC].signature = 'new sig';
+    const nextGistContent = updateGistContent(gistContent, { version: nextVersion, signature: sigContent });
 
-    console.log(JSON.stringify(latestVersion, undefined, 2));
+    await updateGist('7c2b19d446d46ef6e14f72f2bd1d224c', nextGistContent);
+    console.log(`Success to update file:\n${JSON.stringify(nextGistContent, undefined, 2)}`);
   } catch (error) {
     core.setFailed(error.message);
   }
 };
-
 
 run();

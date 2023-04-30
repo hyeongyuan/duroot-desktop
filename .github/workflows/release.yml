@@ -29,3 +29,5 @@ jobs:
 
       - name: Update gist
         uses: ./.github/actions/update-gist
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
