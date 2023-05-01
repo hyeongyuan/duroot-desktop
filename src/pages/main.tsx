@@ -1,12 +1,11 @@
-import { For, Show } from 'solid-js';
-import { createQuery } from '@tanstack/solid-query';
+import { For, Match, Show, Switch, createEffect, createResource, onMount } from 'solid-js';
 import { format, formatDistanceToNow } from 'date-fns';
 import { PullItem } from '../components/github/pull-item';
+import { MyPullItem } from '../components/github/my-pull-item';
 import { Spinner } from '../components/common/spinner';
 import { Header } from '../components/github/header';
-import { AuthStore, useAuthStore } from '../stores/auth';
+import { useAuthStore } from '../stores/auth';
 import { fetchPullRequestsBy, fetchRequestedPullRequests, fetchReviewedPullRequests } from '../utils/github-api';
-import { PullRequestListViewItem } from '../models/pull-request-list-view-item';
 import { createTabsSignal, TabKey } from '../hooks/create-tabs-signal';
 
 const WINDOW_HEIGHT = 500;
@@ -16,97 +15,212 @@ function Main() {
   const tabState = createTabsSignal();
   const [authStore] = useAuthStore();
 
-  const countQuery = createQuery<unknown, unknown, Record<TabKey, number>>(() => ['counts'], async () => {
-    const { token, login } = authStore() as AuthStore;
-
-    const [myPulls, requestedPulls, reviewedPulls] = await Promise.all([
-      fetchPullRequestsBy(token),
-      fetchRequestedPullRequests(token),
-      fetchReviewedPullRequests(token, login),
-    ]);
-
+  const [myPulls, { refetch: myPullsRefetch }] = createResource(authStore, async (source) => {
+    const data = await fetchPullRequestsBy(source.token);
     return {
-      [TabKey.MY_PULL_REQUESTS]: myPulls.total_count,
-      [TabKey.REQUESTED_PULL_REQUESTS]: requestedPulls.total_count,
-      [TabKey.REVIEWED_PULL_REQUESTS]: reviewedPulls.reviewedItems.length,
-      [TabKey.APPROVED_PULL_REQUESTS]: reviewedPulls.approvedItems.length,
+      data,
+      dataUpdatedAt: new Date(),
     };
-  }, {
-    get enabled() {
-      return !!authStore();
-    },
+  });
+  const [requestedPulls, { refetch: requestedPullsRefetch }] = createResource(authStore, async (source) => {
+    const data = await fetchRequestedPullRequests(source.token);
+    return {
+      data,
+      dataUpdatedAt: new Date(),
+    };
+  });
+  const [reviewedPulls, { refetch: reviewedPullsRefetch }] = createResource(authStore, async (source) => {
+    const data = await fetchReviewedPullRequests(source.token, source.login);
+    return {
+      data,
+      dataUpdatedAt: new Date(),
+    };
   });
 
-  const query = createQuery(() => ['pulls', tabState().activeTab], async ({ queryKey }) => {
-    const [_, activeTab] = queryKey;
-    const { token, login } = authStore() as AuthStore;
-
-    if (activeTab === TabKey.MY_PULL_REQUESTS) {
-      const data = await fetchPullRequestsBy(token);
-      const viewItems = await Promise.all(data.items.map(issueItem => {
-        const viewItem = new PullRequestListViewItem(issueItem);
-        return viewItem.loadReviewerCount(token).then(() => viewItem);
-      }));
-      return viewItems;
-    } else if (activeTab === TabKey.REQUESTED_PULL_REQUESTS) {
-      const data = await fetchRequestedPullRequests(token);
-      const viewItems = data.items.map(issueItem => new PullRequestListViewItem(issueItem));
-      return viewItems;
-    } else if (activeTab === TabKey.REVIEWED_PULL_REQUESTS) {
-      const { reviewedItems } = await fetchReviewedPullRequests(token, login);
-      const reviewedViewItems = reviewedItems.map(issueItem => new PullRequestListViewItem(issueItem));
-      return reviewedViewItems;
-    } else if (activeTab === TabKey.APPROVED_PULL_REQUESTS) {
-      const { approvedItems } = await fetchReviewedPullRequests(token, login);
-      const approvedViewItems = approvedItems.map(issueItem => new PullRequestListViewItem(issueItem));
-      return approvedViewItems;
+  createEffect(() => {
+    switch (tabState().activeTab) {
+      case TabKey.MY_PULL_REQUESTS:
+        myPullsRefetch();
+        break;
+      case TabKey.REQUESTED_PULL_REQUESTS:
+        requestedPullsRefetch();
+        break;
+      default:
+        reviewedPullsRefetch();
     }
-  }, {
-    get enabled() {
-      return !!authStore();
-    },
   });
 
+  onMount(() => {
+    window.addEventListener('focus', () => {
+      myPullsRefetch();
+      requestedPullsRefetch();
+      reviewedPullsRefetch();
+    });
+  });
+
+  
   return (
     <div class="w-full">
       <Header
-        tabs={tabState().tabs.map(tab => ({ ...tab, count: countQuery.data?.[tab.key] }))}
+        tabs={tabState().tabs.map(tab => {
+          const tabCounts: Record<TabKey, number> = {
+            [TabKey.MY_PULL_REQUESTS]: myPulls()?.data.total_count ?? 0,
+            [TabKey.REQUESTED_PULL_REQUESTS]: requestedPulls()?.data.total_count ?? 0,
+            [TabKey.REVIEWED_PULL_REQUESTS]: reviewedPulls()?.data.reviewedItems.length ?? 0,
+            [TabKey.APPROVED_PULL_REQUESTS]: reviewedPulls()?.data.approvedItems.length ?? 0,
+          };
+          return {
+            ...tab,
+            count: tabCounts[tab.key],
+          };
+        })}
         activeTab={tabState().activeTab}
       />
-
       <div style={{ height: `${WINDOW_HEIGHT - HEADER_HEIGHT}px` }} class="overflow-y-auto">
-        <Show when={query.dataUpdatedAt}>
-          <div class="py-2">
-            <p class="text-[#768390] text-[10px] text-center">
-              {`Last Update ${format(query.dataUpdatedAt, 'HH\'h\' mm\'m\' ss\'s\'')}`}
-            </p>
-          </div>
-        </Show>
-        <Show when={!query.isLoading} fallback={<Spinner />}>
-          <Show when={query.data && query.data.length === 0}>
-            <div class="p-24">
-              <p class="text-[#768390] text-sm text-center">
-                {'데이터가 없습니다.'}
-              </p>
-            </div>
-          </Show>
-          <Show when={query.data && query.data.length !== 0}>
-            <ul class="divide-y divide-[#373e47]">
-              <For each={query.data}>
-                {item => (
-                  <PullItem
-                    title={item.title}
-                    subtitle={item.organization}
-                    caption={`${item.login} · ${formatDistanceToNow(item.createdAt)}`}
-                    approved={!!(item.approvedCount && item.reviewerCount) && item.approvedCount === item.reviewerCount}
-                    titleUrl={item.htmlUrl}
-                    subtitleUrl={`https://github.com/${item.organization}`}
-                  />
-                )}
-              </For>
-            </ul>
-          </Show>
-        </Show>
+        <Switch>
+          <Match when={tabState().activeTab === TabKey.MY_PULL_REQUESTS}>
+            <Show when={!!myPulls()} fallback={<Spinner />}>
+              <div class="py-2">
+                <p class="text-[#768390] text-[10px] text-center">
+                  {`Last Update ${format(myPulls()?.dataUpdatedAt || new Date(), 'HH\'h\' mm\'m\' ss\'s\'')}`}
+                </p>
+              </div>
+              <Show when={myPulls()?.data.items.length === 0}>
+                <div class="p-24">
+                  <p class="text-[#768390] text-sm text-center">
+                    {'데이터가 없습니다.'}
+                  </p>
+                </div>
+              </Show>
+              <Show when={myPulls()?.data.items.length !== 0}>
+                <ul class="divide-y divide-[#373e47]">
+                  <For each={myPulls()?.data.items}>
+                    {item => {
+                      const [repo, owner] = item.repository_url.split('/').reverse();
+                      const ownerRepo = `${owner}/${repo}`;
+                      return (
+                        <MyPullItem
+                          id={item.id}
+                          title={item.title}
+                          titleUrl={item.html_url}
+                          subtitle={ownerRepo}
+                          subtitleUrl={`https://github.com/${ownerRepo}`}
+                          caption={formatDistanceToNow(new Date(item.created_at))}
+                          pullRequestUrl={item.pull_request.url}
+                        />
+                      );
+                    }}
+                  </For>
+                </ul>
+              </Show>
+            </Show>
+          </Match>
+          <Match when={tabState().activeTab === TabKey.REQUESTED_PULL_REQUESTS}>
+            <Show when={!!requestedPulls()} fallback={<Spinner />}>
+              <div class="py-2">
+                <p class="text-[#768390] text-[10px] text-center">
+                  {`Last Update ${format(requestedPulls()?.dataUpdatedAt || new Date(), 'HH\'h\' mm\'m\' ss\'s\'')}`}
+                </p>
+              </div>
+              <Show when={requestedPulls()?.data.items.length === 0}>
+                <div class="p-24">
+                  <p class="text-[#768390] text-sm text-center">
+                    {'데이터가 없습니다.'}
+                  </p>
+                </div>
+              </Show>
+              <Show when={requestedPulls()?.data.items.length !== 0}>
+                <ul class="divide-y divide-[#373e47]">
+                  <For each={requestedPulls()?.data.items}>
+                    {item => {
+                      const [repo, owner] = item.repository_url.split('/').reverse();
+                      const ownerRepo = `${owner}/${repo}`;
+                      return (
+                        <PullItem
+                          title={item.title}
+                          titleUrl={item.html_url}
+                          subtitle={ownerRepo}
+                          subtitleUrl={`https://github.com/${ownerRepo}`}
+                          caption={`${item.user.login} · ${formatDistanceToNow(new Date(item.created_at))}`}
+                        />
+                      );
+                    }}
+                  </For>
+                </ul>
+              </Show>
+            </Show>
+          </Match>
+          <Match when={tabState().activeTab === TabKey.REVIEWED_PULL_REQUESTS}>
+            <Show when={!!reviewedPulls()} fallback={<Spinner />}>
+              <div class="py-2">
+                <p class="text-[#768390] text-[10px] text-center">
+                  {`Last Update ${format(reviewedPulls()?.dataUpdatedAt || new Date(), 'HH\'h\' mm\'m\' ss\'s\'')}`}
+                </p>
+              </div>
+              <Show when={reviewedPulls()?.data.reviewedItems.length === 0}>
+                <div class="p-24">
+                  <p class="text-[#768390] text-sm text-center">
+                    {'데이터가 없습니다.'}
+                  </p>
+                </div>
+              </Show>
+              <Show when={reviewedPulls()?.data.reviewedItems.length !== 0}>
+                <ul class="divide-y divide-[#373e47]">
+                  <For each={reviewedPulls()?.data.reviewedItems}>
+                    {item => {
+                      const [repo, owner] = item.repository_url.split('/').reverse();
+                      const ownerRepo = `${owner}/${repo}`;
+                      return (
+                        <PullItem
+                          title={item.title}
+                          titleUrl={item.html_url}
+                          subtitle={ownerRepo}
+                          subtitleUrl={`https://github.com/${ownerRepo}`}
+                          caption={`${item.user.login} · ${formatDistanceToNow(new Date(item.created_at))}`}
+                        />
+                      );
+                    }}
+                  </For>
+                </ul>
+              </Show>
+            </Show>
+          </Match>
+          <Match when={tabState().activeTab === TabKey.APPROVED_PULL_REQUESTS}>
+            <Show when={!!reviewedPulls()} fallback={<Spinner />}>
+              <div class="py-2">
+                <p class="text-[#768390] text-[10px] text-center">
+                  {`Last Update ${format(reviewedPulls()?.dataUpdatedAt || new Date(), 'HH\'h\' mm\'m\' ss\'s\'')}`}
+                </p>
+              </div>
+              <Show when={reviewedPulls()?.data.approvedItems.length === 0}>
+                <div class="p-24">
+                  <p class="text-[#768390] text-sm text-center">
+                    {'데이터가 없습니다.'}
+                  </p>
+                </div>
+              </Show>
+              <Show when={reviewedPulls()?.data.approvedItems.length !== 0}>
+                <ul class="divide-y divide-[#373e47]">
+                  <For each={reviewedPulls()?.data.approvedItems}>
+                    {item => {
+                      const [repo, owner] = item.repository_url.split('/').reverse();
+                      const ownerRepo = `${owner}/${repo}`;
+                      return (
+                        <PullItem
+                          title={item.title}
+                          titleUrl={item.html_url}
+                          subtitle={ownerRepo}
+                          subtitleUrl={`https://github.com/${ownerRepo}`}
+                          caption={`${item.user.login} · ${formatDistanceToNow(new Date(item.created_at))}`}
+                        />
+                      );
+                    }}
+                  </For>
+                </ul>
+              </Show>
+            </Show>
+          </Match>
+        </Switch>
       </div>
     </div>
   );

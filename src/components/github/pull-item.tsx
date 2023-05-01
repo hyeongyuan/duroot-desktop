@@ -1,13 +1,11 @@
 import { Show } from 'solid-js';
-import { ApprovedLabel } from './approved-label';
 
 interface PullProps {
   title: string;
-  subtitle: string;
-  caption?: string;
-  approved?: boolean;
   titleUrl: string;
+  subtitle: string;
   subtitleUrl: string;
+  caption?: string;
 }
 
 export function PullItem (props: PullProps) {
@@ -21,9 +19,6 @@ export function PullItem (props: PullProps) {
         >
           {props.subtitle}
         </a>
-        <Show when={props.approved}>
-          <ApprovedLabel />
-        </Show>
       </div>
       <a
         class="font-medium text-sm hover:text-[#539bf5] leading-6 line-clamp-3 break-all my-1"
