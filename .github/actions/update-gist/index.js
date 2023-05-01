@@ -16,7 +16,9 @@ const getGist = async id => {
 const updateGist = async (id, content) => {
   await axios.patch(`https://api.github.com/gists/${id}`, {
     files: {
-      ['latest-version.json']: content,
+      ['latest-version.json']: {
+        content: JSON.stringify(content, undefined, 2),
+      },
     },
   }, {
     headers: {
