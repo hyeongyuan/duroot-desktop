@@ -36,7 +36,7 @@ const updateGistContent = (content, { version, signature }) => {
       ...content.platforms,
       [PLATFORM_MAC]: {
         ...content.platforms[PLATFORM_MAC],
-        url: `https://github.com/hyeongyuan/duroot-desktop/releases/download/release-${version}/Duroot.app.tar.gz`,
+        url: `https://github.com/hyeongyuan/duroot-desktop/releases/download/release-${version}/Duroot_x64.app.tar.gz`,
         signature,
       },
     },
