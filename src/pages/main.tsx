@@ -1,9 +1,8 @@
-import { For, Match, Show, Switch, createEffect, createResource, onMount } from 'solid-js';
-import { format, formatDistanceToNow } from 'date-fns';
-import { PullItem } from '../components/github/pull-item';
-import { MyPullItem } from '../components/github/my-pull-item';
+import { Match, Show, Switch, createEffect, createResource, onCleanup, onMount } from 'solid-js';
 import { Spinner } from '../components/common/spinner';
 import { Header } from '../components/github/header';
+import { MyPullList } from '../components/github/my-pull-list';
+import { PullList } from '../components/github/pull-list';
 import { useAuthStore } from '../stores/auth';
 import { fetchPullRequestsBy, fetchRequestedPullRequests, fetchReviewedPullRequests } from '../utils/github-api';
 import { createTabsSignal, TabKey } from '../hooks/create-tabs-signal';
@@ -50,14 +49,19 @@ function Main() {
     }
   });
 
+  const refetchPulls = () => {
+    myPullsRefetch();
+    requestedPullsRefetch();
+    reviewedPullsRefetch();
+  };
+
   onMount(() => {
-    window.addEventListener('focus', () => {
-      myPullsRefetch();
-      requestedPullsRefetch();
-      reviewedPullsRefetch();
-    });
+    window.addEventListener('focus', refetchPulls);
   });
 
+  onCleanup(() => {
+    window.removeEventListener('focus', refetchPulls);
+  });
   
   return (
     <div class="w-full">
@@ -80,144 +84,34 @@ function Main() {
         <Switch>
           <Match when={tabState().activeTab === TabKey.MY_PULL_REQUESTS}>
             <Show when={!!myPulls()} fallback={<Spinner />}>
-              <div class="py-2">
-                <p class="text-[#768390] text-[10px] text-center">
-                  {`Last Update ${format(myPulls()?.dataUpdatedAt || new Date(), 'HH\'h\' mm\'m\' ss\'s\'')}`}
-                </p>
-              </div>
-              <Show when={myPulls()?.data.items.length === 0}>
-                <div class="p-24">
-                  <p class="text-[#768390] text-sm text-center">
-                    {'데이터가 없습니다.'}
-                  </p>
-                </div>
-              </Show>
-              <Show when={myPulls()?.data.items.length !== 0}>
-                <ul class="divide-y divide-[#373e47]">
-                  <For each={myPulls()?.data.items}>
-                    {item => {
-                      const [repo, owner] = item.repository_url.split('/').reverse();
-                      const ownerRepo = `${owner}/${repo}`;
-                      return (
-                        <MyPullItem
-                          id={item.id}
-                          title={item.title}
-                          titleUrl={item.html_url}
-                          subtitle={ownerRepo}
-                          subtitleUrl={`https://github.com/${ownerRepo}`}
-                          caption={formatDistanceToNow(new Date(item.created_at))}
-                          pullRequestUrl={item.pull_request.url}
-                        />
-                      );
-                    }}
-                  </For>
-                </ul>
-              </Show>
+              <MyPullList
+                data={myPulls()?.data!}
+                dataUpdatedAt={myPulls()?.dataUpdatedAt!}
+              />
             </Show>
           </Match>
           <Match when={tabState().activeTab === TabKey.REQUESTED_PULL_REQUESTS}>
             <Show when={!!requestedPulls()} fallback={<Spinner />}>
-              <div class="py-2">
-                <p class="text-[#768390] text-[10px] text-center">
-                  {`Last Update ${format(requestedPulls()?.dataUpdatedAt || new Date(), 'HH\'h\' mm\'m\' ss\'s\'')}`}
-                </p>
-              </div>
-              <Show when={requestedPulls()?.data.items.length === 0}>
-                <div class="p-24">
-                  <p class="text-[#768390] text-sm text-center">
-                    {'데이터가 없습니다.'}
-                  </p>
-                </div>
-              </Show>
-              <Show when={requestedPulls()?.data.items.length !== 0}>
-                <ul class="divide-y divide-[#373e47]">
-                  <For each={requestedPulls()?.data.items}>
-                    {item => {
-                      const [repo, owner] = item.repository_url.split('/').reverse();
-                      const ownerRepo = `${owner}/${repo}`;
-                      return (
-                        <PullItem
-                          title={item.title}
-                          titleUrl={item.html_url}
-                          subtitle={ownerRepo}
-                          subtitleUrl={`https://github.com/${ownerRepo}`}
-                          caption={`${item.user.login} · ${formatDistanceToNow(new Date(item.created_at))}`}
-                        />
-                      );
-                    }}
-                  </For>
-                </ul>
-              </Show>
+              <PullList
+                data={requestedPulls()?.data!}
+                dataUpdatedAt={requestedPulls()?.dataUpdatedAt!}
+              />
             </Show>
           </Match>
           <Match when={tabState().activeTab === TabKey.REVIEWED_PULL_REQUESTS}>
             <Show when={!!reviewedPulls()} fallback={<Spinner />}>
-              <div class="py-2">
-                <p class="text-[#768390] text-[10px] text-center">
-                  {`Last Update ${format(reviewedPulls()?.dataUpdatedAt || new Date(), 'HH\'h\' mm\'m\' ss\'s\'')}`}
-                </p>
-              </div>
-              <Show when={reviewedPulls()?.data.reviewedItems.length === 0}>
-                <div class="p-24">
-                  <p class="text-[#768390] text-sm text-center">
-                    {'데이터가 없습니다.'}
-                  </p>
-                </div>
-              </Show>
-              <Show when={reviewedPulls()?.data.reviewedItems.length !== 0}>
-                <ul class="divide-y divide-[#373e47]">
-                  <For each={reviewedPulls()?.data.reviewedItems}>
-                    {item => {
-                      const [repo, owner] = item.repository_url.split('/').reverse();
-                      const ownerRepo = `${owner}/${repo}`;
-                      return (
-                        <PullItem
-                          title={item.title}
-                          titleUrl={item.html_url}
-                          subtitle={ownerRepo}
-                          subtitleUrl={`https://github.com/${ownerRepo}`}
-                          caption={`${item.user.login} · ${formatDistanceToNow(new Date(item.created_at))}`}
-                        />
-                      );
-                    }}
-                  </For>
-                </ul>
-              </Show>
+              <PullList
+                data={reviewedPulls()?.data.reviewedItems!}
+                dataUpdatedAt={reviewedPulls()?.dataUpdatedAt!}
+              />
             </Show>
           </Match>
           <Match when={tabState().activeTab === TabKey.APPROVED_PULL_REQUESTS}>
             <Show when={!!reviewedPulls()} fallback={<Spinner />}>
-              <div class="py-2">
-                <p class="text-[#768390] text-[10px] text-center">
-                  {`Last Update ${format(reviewedPulls()?.dataUpdatedAt || new Date(), 'HH\'h\' mm\'m\' ss\'s\'')}`}
-                </p>
-              </div>
-              <Show when={reviewedPulls()?.data.approvedItems.length === 0}>
-                <div class="p-24">
-                  <p class="text-[#768390] text-sm text-center">
-                    {'데이터가 없습니다.'}
-                  </p>
-                </div>
-              </Show>
-              <Show when={reviewedPulls()?.data.approvedItems.length !== 0}>
-                <ul class="divide-y divide-[#373e47]">
-                  <For each={reviewedPulls()?.data.approvedItems}>
-                    {item => {
-                      const [repo, owner] = item.repository_url.split('/').reverse();
-                      const ownerRepo = `${owner}/${repo}`;
-                      return (
-                        <PullItem
-                          title={item.title}
-                          titleUrl={item.html_url}
-                          subtitle={ownerRepo}
-                          subtitleUrl={`https://github.com/${ownerRepo}`}
-                          caption={`${item.user.login} · ${formatDistanceToNow(new Date(item.created_at))}`}
-                        />
-                      );
-                    }}
-                  </For>
-                </ul>
-              </Show>
+              <PullList
+                data={reviewedPulls()?.data.approvedItems!}
+                dataUpdatedAt={reviewedPulls()?.dataUpdatedAt!}
+              />
             </Show>
           </Match>
         </Switch>
