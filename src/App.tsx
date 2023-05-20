@@ -16,8 +16,9 @@ function App() {
   createAuthSignal(data => {
     if (data) {
       setAuthStore({
-        token: data.token,
+        id: data.user.id,
         login: data.user.login,
+        token: data.token,
       });
     }
     navigate(data ? '/main' : '/auth');

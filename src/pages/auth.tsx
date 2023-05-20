@@ -32,7 +32,11 @@ function Auth() {
         ...prevToken,
         github: token,
       }));
-      setAuthStore({ token, login: user.login });
+      setAuthStore({
+        id: user.id,
+        login: user.login,
+        token,
+      });
 
       navigate('/main');
     } catch (err) {

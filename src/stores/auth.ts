@@ -1,8 +1,9 @@
 import { Accessor, Setter, createSignal } from 'solid-js';
 
 export interface AuthStore {
-  token: string;
+  id: number;
   login: string;
+  token: string;
 }
 
 const [authStore, setAuthStore] = createSignal<AuthStore | null>(null);
