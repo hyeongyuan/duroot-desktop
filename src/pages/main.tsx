@@ -1,6 +1,7 @@
 import { Match, Show, Switch, createEffect, createResource, onCleanup, onMount } from 'solid-js';
 import { Spinner } from '../components/common/spinner';
-import { Header } from '../components/github/header';
+import { Header } from '../components/common/header';
+import { TabList } from '../components/github/tab-list';
 import { MyPullList } from '../components/github/my-pull-list';
 import { PullList } from '../components/github/pull-list';
 import { useAuthStore } from '../stores/auth';
@@ -65,7 +66,8 @@ function Main() {
   
   return (
     <div class="w-full">
-      <Header
+      <Header />
+      <TabList
         tabs={tabState().tabs.map(tab => {
           const tabCounts: Record<TabKey, number> = {
             [TabKey.MY_PULL_REQUESTS]: myPulls()?.data.total_count ?? 0,

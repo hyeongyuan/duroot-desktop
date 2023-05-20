@@ -9,11 +9,14 @@ interface HeaderProps {
   activeTab: TabKey;
 }
 
-export function Header(props: HeaderProps) {
+export function TabList(props: HeaderProps) {
   return (
     <ul
-      style={{ height: `${HEADER_HEIGHT}px` }}
-      class="bg-[#2d333b] px-2 border border-[#373e47] overflow-y-auto whitespace-nowrap"
+      style={{
+        height: `${HEADER_HEIGHT}px`,
+        'box-shadow': 'inset 0 -1px 0 #373e47'
+      }}
+      class="px-2 overflow-y-auto whitespace-nowrap"
     >
       <For each={props.tabs}>
         {tab => (
