@@ -1,5 +1,6 @@
-import { lazy } from 'solid-js';
+import { lazy, onMount } from 'solid-js';
 import { Route, Routes, useNavigate } from '@solidjs/router';
+import { invoke } from '@tauri-apps/api';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
 import { useAuthStore } from './stores/auth';
 import { createAuthSignal } from './hooks/create-auth-signal';
@@ -12,6 +13,10 @@ const queryClient = new QueryClient();
 function App() {
   const navigate = useNavigate();
   const [, setAuthStore] = useAuthStore();
+
+  onMount(() => {
+    invoke('init_spotlight_window');
+  });
 
   createAuthSignal(data => {
     if (data) {

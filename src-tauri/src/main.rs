@@ -4,16 +4,17 @@
 use tauri::{SystemTray, SystemTrayMenu, SystemTrayEvent, Manager};
 use tauri_plugin_positioner::{Position, WindowExt};
 
-use cocoa::{
-    appkit::{NSWindow, NSWindowCollectionBehavior},
-    base::{id}
-};
+mod spotlight;
 
 fn main() {
     let system_tray_menu = SystemTrayMenu::new();
 
     tauri::Builder::default()
         .plugin(tauri_plugin_positioner::init())
+        .invoke_handler(tauri::generate_handler![
+            spotlight::init_spotlight_window
+        ])
+        .manage(spotlight::State::default())
         .system_tray(SystemTray::new().with_menu(system_tray_menu))
         .on_system_tray_event(|app, event| {
             tauri_plugin_positioner::on_tray_event(app, &event);
@@ -23,23 +24,11 @@ fn main() {
                     size: _,
                     ..
                 } => {
-                    let window = app.get_window("main").unwrap();
+                    let window: tauri::Window = app.get_window("main").unwrap();
 
-                    let ns_window = window.ns_window().unwrap() as id;
-                    unsafe {
-                        let mut collection_behavior = ns_window.collectionBehavior();
-                        collection_behavior |= NSWindowCollectionBehavior::NSWindowCollectionBehaviorCanJoinAllSpaces;
+                    let _ = window.move_window(Position::TrayBottomCenter);
 
-                        let _ = window.move_window(Position::TrayBottomCenter);
-                        if window.is_visible().unwrap() {
-                            window.hide().unwrap();
-                        } else {
-                            window.show().unwrap();
-                            window.set_focus().unwrap();
-                        }
-
-                        ns_window.setLevel_(10000);
-                    }
+                    spotlight::toggle_spotlight(window.app_handle());
                 }
                 _ => {}
             }
