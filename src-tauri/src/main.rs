@@ -4,6 +4,11 @@
 use tauri::{SystemTray, SystemTrayMenu, SystemTrayEvent, Manager};
 use tauri_plugin_positioner::{Position, WindowExt};
 
+use cocoa::{
+    appkit::{NSWindow, NSWindowCollectionBehavior},
+    base::{id}
+};
+
 fn main() {
     let system_tray_menu = SystemTrayMenu::new();
 
@@ -19,13 +24,21 @@ fn main() {
                     ..
                 } => {
                     let window = app.get_window("main").unwrap();
-                    // use TrayCenter as initial window position
-                    let _ = window.move_window(Position::TrayCenter);
-                    if window.is_visible().unwrap() {
-                        window.hide().unwrap();
-                    } else {
-                        window.show().unwrap();
-                        window.set_focus().unwrap();
+
+                    let ns_window = window.ns_window().unwrap() as id;
+                    unsafe {
+                        let mut collection_behavior = ns_window.collectionBehavior();
+                        collection_behavior |= NSWindowCollectionBehavior::NSWindowCollectionBehaviorCanJoinAllSpaces;
+
+                        let _ = window.move_window(Position::TrayBottomCenter);
+                        if window.is_visible().unwrap() {
+                            window.hide().unwrap();
+                        } else {
+                            window.show().unwrap();
+                            window.set_focus().unwrap();
+                        }
+
+                        ns_window.setLevel_(10000);
                     }
                 }
                 _ => {}
