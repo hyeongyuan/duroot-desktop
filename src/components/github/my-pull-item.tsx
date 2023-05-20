@@ -24,7 +24,6 @@ export function MyPullItem (props: MyPullProps) {
 
   createEffect(() => {
     if (tabState().activeTab === TabKey.MY_PULL_REQUESTS) {
-      console.log(props.id);
       reviewCountRefetch();
     }
   });
