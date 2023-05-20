@@ -1,6 +1,6 @@
 {
   "name": "duroot-desktop",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Desktop applications that gather and view information related to GitHub",
   "scripts": {
     "start": "vite",
