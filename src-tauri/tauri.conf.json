@@ -67,7 +67,8 @@
     ],
     "systemTray": {
       "iconPath": "icons/forest.png",
-      "iconAsTemplate": true
+      "iconAsTemplate": true,
+      "menuOnLeftClick": false
     }
   }
 }
