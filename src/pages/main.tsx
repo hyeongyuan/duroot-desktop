@@ -50,18 +50,16 @@ function Main() {
     }
   });
 
-  const refetchPulls = () => {
-    myPullsRefetch();
-    requestedPullsRefetch();
-    reviewedPullsRefetch();
-  };
-
   onMount(() => {
+    const refetchPulls = () => {
+      myPullsRefetch();
+      requestedPullsRefetch();
+      reviewedPullsRefetch();
+    };
     window.addEventListener('focus', refetchPulls);
-  });
-
-  onCleanup(() => {
-    window.removeEventListener('focus', refetchPulls);
+    onCleanup(() => {
+      window.removeEventListener('focus', refetchPulls);
+    });
   });
   
   return (

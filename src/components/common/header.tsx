@@ -1,4 +1,4 @@
-import { createSignal } from 'solid-js';
+import { createSignal, onCleanup, onMount } from 'solid-js';
 import { useNavigate } from '@solidjs/router';
 import { Avatar } from './avatar';
 import { useAuthStore } from '../../stores/auth';
@@ -11,6 +11,20 @@ export function Header() {
   const navigate = useNavigate();
   const [authStore, setAuthStore] = useAuthStore();
   const [, setLocalToken] = createLocalStorageSignal<{github?: string}>('token');
+
+  let element: HTMLDivElement;
+  onMount(() => {
+    const eventListener = (event: MouseEvent) => {
+      if (!element || element.contains(event.target as Node)) {
+        return;
+      }
+      setIsOpen(false);
+    };
+    document.addEventListener('mousedown', eventListener);
+    onCleanup(() => {
+      document.removeEventListener('mousedown', eventListener);
+    });
+  });
 
   const handleSignOut = async (event: MouseEvent) => {
     event.preventDefault();
@@ -27,7 +41,7 @@ export function Header() {
       }}
       class="flex items-center justify-end bg-[#2d333b] border border-[#373e47] px-4"
     >
-      <div class="relative">
+      <div class="relative" ref={element!}>
         <div class="cursor-pointer" onClick={() => setIsOpen(prev => !prev)}>
           <Avatar
             size={24}
