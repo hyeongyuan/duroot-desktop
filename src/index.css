@@ -34,3 +34,7 @@ img {
   -o-user-drag: none;
   user-drag: none;
 }
+
+a {
+  outline: none;
+}
