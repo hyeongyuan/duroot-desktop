@@ -1,7 +1,7 @@
 import { Match, Show, Switch, createEffect, createResource, onCleanup, onMount } from 'solid-js';
 import { Spinner } from '../components/common/spinner';
-import { Header } from '../components/common/header';
-import { TabList } from '../components/github/tab-list';
+import { HEADER_HEIGHT, Header } from '../components/common/header';
+import { TAB_LIST_HEIGHT, TabList } from '../components/github/tab-list';
 import { MyPullList } from '../components/github/my-pull-list';
 import { PullList } from '../components/github/pull-list';
 import { useAuthStore } from '../stores/auth';
@@ -9,7 +9,7 @@ import { fetchPullRequestsBy, fetchRequestedPullRequests, fetchReviewedPullReque
 import { createTabsSignal, TabKey } from '../hooks/create-tabs-signal';
 
 const WINDOW_HEIGHT = 500;
-const HEADER_HEIGHT = 44;
+const HEADER_SECTION_HEIGHT = HEADER_HEIGHT + TAB_LIST_HEIGHT;
 
 function Main() {
   const tabState = createTabsSignal();
@@ -82,7 +82,7 @@ function Main() {
         })}
         activeTab={tabState().activeTab}
       />
-      <div style={{ height: `${WINDOW_HEIGHT - HEADER_HEIGHT}px` }} class="overflow-y-auto">
+      <div style={{ height: `${WINDOW_HEIGHT - HEADER_SECTION_HEIGHT}px` }} class="overflow-y-auto">
         <Switch>
           <Match when={tabState().activeTab === TabKey.MY_PULL_REQUESTS}>
             <Show when={!!myPulls()} fallback={<Spinner />}>

@@ -4,6 +4,8 @@ import { Avatar } from './avatar';
 import { useAuthStore } from '../../stores/auth';
 import { createLocalStorageSignal } from '../../hooks/create-local-storage-signal';
 
+export const HEADER_HEIGHT = 44;
+
 export function Header() {
   const [isOpen, setIsOpen] = createSignal(false);
   const navigate = useNavigate();
@@ -19,7 +21,12 @@ export function Header() {
     navigate('/auth');
   };
   return (
-    <div class="flex justify-end bg-[#2d333b] border border-[#373e47] px-4 py-2">
+    <div
+      style={{
+        height: `${HEADER_HEIGHT}px`,
+      }}
+      class="flex items-center justify-end bg-[#2d333b] border border-[#373e47] px-4"
+    >
       <div class="relative">
         <div class="cursor-pointer" onClick={() => setIsOpen(prev => !prev)}>
           <Avatar

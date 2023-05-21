@@ -2,7 +2,7 @@ import { For, Show } from 'solid-js';
 import { A } from '@solidjs/router';
 import type { Tab, TabKey } from '../../hooks/create-tabs-signal';
 
-const HEADER_HEIGHT = 44;
+export const TAB_LIST_HEIGHT = 44;
 
 interface HeaderProps {
   tabs: Tab[];
@@ -13,7 +13,7 @@ export function TabList(props: HeaderProps) {
   return (
     <ul
       style={{
-        height: `${HEADER_HEIGHT}px`,
+        height: `${TAB_LIST_HEIGHT}px`,
         'box-shadow': 'inset 0 -1px 0 #373e47'
       }}
       class="px-2 overflow-y-auto whitespace-nowrap"
