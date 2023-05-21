@@ -28,8 +28,8 @@ export function Header() {
     });
   });
 
-  createEffect(() => {
-    isEnabled().then(setIsAutoStart);
+  onMount(async () => {
+    setIsAutoStart(await isEnabled());
   });
 
   const handleAutoStart = async () => {
@@ -39,7 +39,7 @@ export function Header() {
     } else {
       await enable();
     }
-    console.log('isAutoStart', isAutoStart);
+    setIsAutoStart(await isEnabled());
   };
 
   const handleSignOut = async (event: MouseEvent) => {
@@ -79,9 +79,11 @@ export function Header() {
 
           <div class="border-t border-[#444c56] my-[6px]" />
 
-          <div class="flex items-center px-4 py-1 hover:bg-[#316dca]" onClick={handleAutoStart}>
-            <input id="auto-launch" type="checkbox" checked={isAutoStart()} class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2" />
-            <label for="auto-launch" class="ml-2">Auto launch</label>
+          <div class="flex items-center px-4 py-1 hover:bg-[#316dca] cursor-pointer" onClick={handleAutoStart}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill={isAutoStart() ? '#10B981' : '#444c56'}>
+              <path d="M21 6.285l-11.16 12.733-6.84-6.018 1.319-1.49 5.341 4.686 9.865-11.196 1.475 1.285z"/>
+            </svg>
+            <p class="ml-1">Auto launch</p>
           </div>
 
           <div class="border-t border-[#444c56] my-[6px]" />
