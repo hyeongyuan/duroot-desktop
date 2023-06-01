@@ -38,7 +38,7 @@ export function MyPullItem (props: MyPullProps) {
         >
           {props.subtitle}
         </a>
-        <Show when={!!reviewCount() && reviewCount()?.approved === reviewCount()?.total}>
+        <Show when={!!reviewCount()?.total &&  reviewCount()!.approved === reviewCount()!.total}>
           <ApprovedLabel />
         </Show>
       </div>

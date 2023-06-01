@@ -32,6 +32,7 @@ export interface GithubIssueItem {
   created_at: string;
   labels: GithubLabel[];
   user: GithubUser;
+  draft: boolean;
 }
 
 export interface GithubSearch {
