@@ -1,10 +1,9 @@
+import { JSX } from 'solid-js';
+
 interface InputProps {
   value: string;
   placeholder?: string;
-  onInput: (event: InputEvent & {
-    currentTarget: HTMLInputElement;
-    target: HTMLInputElement;
-  }) => void;
+  onInput: JSX.EventHandler<HTMLInputElement, InputEvent>;
 }
 
 function Input(props: InputProps) {
