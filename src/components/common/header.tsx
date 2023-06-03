@@ -1,4 +1,4 @@
-import { createEffect, createSignal, onCleanup, onMount } from 'solid-js';
+import { createSignal, onCleanup, onMount } from 'solid-js';
 import { useNavigate } from '@solidjs/router';
 import { enable, isEnabled, disable } from 'tauri-plugin-autostart-api';
 import { Avatar } from './avatar';
@@ -16,15 +16,25 @@ export function Header() {
 
   let element: HTMLDivElement;
   onMount(() => {
-    const eventListener = (event: MouseEvent) => {
+    const mousedownEventListener = (event: MouseEvent) => {
       if (!element || element.contains(event.target as Node)) {
         return;
       }
       setIsOpen(false);
     };
-    document.addEventListener('mousedown', eventListener);
+    document.addEventListener('mousedown', mousedownEventListener);
     onCleanup(() => {
-      document.removeEventListener('mousedown', eventListener);
+      document.removeEventListener('mousedown', mousedownEventListener);
+    });
+  });
+
+  onMount(() => {
+    const blurEventListener = () => {
+      setIsOpen(false);
+    };
+    window.addEventListener('blur', blurEventListener);
+    onCleanup(() => {
+      document.removeEventListener('mousedown', blurEventListener);
     });
   });
 
