@@ -1,8 +1,9 @@
-import { Show, createEffect, createResource } from 'solid-js';
+import { Show, createEffect } from 'solid-js';
 import { ApprovedLabel } from './approved-label';
 import { useAuthStore } from '../../stores/auth';
 import { fetchReviewCount } from '../../utils/github-api';
 import { TabKey, createTabsSignal } from '../../hooks/create-tabs-signal';
+import { createCachedResource } from '../../hooks/create-cached-resource';
 
 interface MyPullProps {
   id: number;
@@ -17,7 +18,8 @@ interface MyPullProps {
 export function MyPullItem (props: MyPullProps) {
   const [authStore] = useAuthStore();
   const tabState = createTabsSignal();
-  const [reviewCount, { refetch: reviewCountRefetch }] = createResource(authStore, async (source) => {
+
+  const [reviewCount, { refetch: reviewCountRefetch }] = createCachedResource(authStore, async (source) => {
     const data = await fetchReviewCount(source.token, props.pullRequestUrl, source.login);
     return data;
   });
