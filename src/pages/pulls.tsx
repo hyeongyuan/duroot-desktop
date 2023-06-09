@@ -11,7 +11,7 @@ import { createTabsSignal, TabKey } from '../hooks/create-tabs-signal';
 const WINDOW_HEIGHT = 500;
 const HEADER_SECTION_HEIGHT = HEADER_HEIGHT + TAB_LIST_HEIGHT;
 
-function Main() {
+function Pulls() {
   const tabState = createTabsSignal();
   const [authStore] = useAuthStore();
 
@@ -120,4 +120,4 @@ function Main() {
   );
 }
 
-export default Main;
+export default Pulls;

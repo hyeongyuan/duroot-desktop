@@ -38,7 +38,7 @@ function Auth() {
         token,
       });
 
-      navigate('/main');
+      navigate('/pulls');
     } catch (err) {
       const error = err as AxiosError;
       const { status } = error.response || { status: 599 };

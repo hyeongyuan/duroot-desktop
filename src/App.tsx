@@ -6,7 +6,7 @@ import { useAuthStore } from './stores/auth';
 import { createAuthSignal } from './hooks/create-auth-signal';
 
 const Auth = lazy(() => import('./pages/auth'));
-const Main = lazy(() => import('./pages/main'));
+const Pulls = lazy(() => import('./pages/pulls'));
 
 const queryClient = new QueryClient();
 
@@ -26,7 +26,7 @@ function App() {
         token: data.token,
       });
     }
-    navigate(data ? '/main' : '/auth');
+    navigate(data ? '/pulls' : '/auth');
   });
 
   return (
@@ -35,7 +35,7 @@ function App() {
         <Routes>
           <Route path="/" />
           <Route path="/auth" component={Auth} />
-          <Route path="/main" component={Main} />
+          <Route path="/pulls" component={Pulls} />
         </Routes>
       </div>
     </QueryClientProvider>

@@ -22,7 +22,7 @@ export function TabList(props: HeaderProps) {
         {tab => (
           <li class={`py-2 ${props.activeTab === tab.key ? 'border-[#ec775c]' : 'border-[transparent]'} border-b-2 inline-block`}>
             <A
-              href={`/main?tab=${tab.key}`}
+              href={`/pulls?tab=${tab.key}`}
               class={`p-2 text-xs cursor-pointer ${props.activeTab === tab.key ? 'text-[#e6edf3]': ''} hover:text-[#e6edf3]`}
             >
               {tab.name}
