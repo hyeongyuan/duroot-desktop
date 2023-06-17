@@ -1,6 +1,7 @@
 import { createSignal, onCleanup, onMount } from 'solid-js';
 import { useNavigate, A, useLocation } from '@solidjs/router';
 import { enable, isEnabled, disable } from 'tauri-plugin-autostart-api';
+import { isPermissionGranted, requestPermission } from '@tauri-apps/api/notification';
 import { Avatar } from './avatar';
 import { useAuthStore } from '../../stores/auth';
 import { createLocalStorageSignal } from '../../hooks/create-local-storage-signal';
@@ -12,6 +13,7 @@ export function Header() {
   const { pathname } = useLocation();
   const [isOpen, setIsOpen] = createSignal(false);
   const [isAutoStart, setIsAutoStart] = createSignal(false);
+  const [isNotification, setIsNotification] = createSignal(false);
   const [authStore, setAuthStore] = useAuthStore();
   const [, setLocalToken] = createLocalStorageSignal<{github?: string}>('token');
 
@@ -41,6 +43,17 @@ export function Header() {
 
   onMount(async () => {
     setIsAutoStart(await isEnabled());
+  });
+
+  onMount(async () => {
+    let permissionGranted = await isPermissionGranted();
+
+    if (!permissionGranted) {
+      const permission = await requestPermission();
+      permissionGranted = permission === 'granted';
+    }
+
+    setIsNotification(permissionGranted);
   });
 
   const handleAutoStart = async () => {
@@ -100,6 +113,13 @@ export function Header() {
               <path d="M21 6.285l-11.16 12.733-6.84-6.018 1.319-1.49 5.341 4.686 9.865-11.196 1.475 1.285z"/>
             </svg>
             <p class="ml-1">Auto launch</p>
+          </div>
+
+          <div class="flex items-center px-4 py-1 hover:bg-[#316dca] cursor-pointer" onClick={handleAutoStart}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill={isNotification() ? '#10B981' : '#444c56'}>
+              <path d="M21 6.285l-11.16 12.733-6.84-6.018 1.319-1.49 5.341 4.686 9.865-11.196 1.475 1.285z"/>
+            </svg>
+            <p class="ml-1">Notification</p>
           </div>
 
           <div class="border-t border-[#444c56] my-[6px]" />

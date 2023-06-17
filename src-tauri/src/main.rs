@@ -6,6 +6,7 @@ use tauri_plugin_positioner::{Position, WindowExt};
 use tauri_plugin_autostart::MacosLauncher;
 
 mod spotlight;
+mod notify;
 
 fn main() {
     let system_tray_menu = SystemTrayMenu::new();
@@ -46,6 +47,9 @@ fn main() {
         })
         .setup(move |app| {
             app.set_activation_policy(tauri::ActivationPolicy::Accessory);
+
+            notify::init(app.app_handle());
+
             Ok(())
         })
         .run(tauri::generate_context!())
