@@ -1,6 +1,8 @@
-import { lazy, onMount } from 'solid-js';
+import { lazy, onCleanup, onMount } from 'solid-js';
 import { Route, Routes, useNavigate } from '@solidjs/router';
 import { invoke } from '@tauri-apps/api';
+import { listen } from '@tauri-apps/api/event';
+import { sendNotification } from '@tauri-apps/api/notification';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
 import { useAuthStore } from './stores/auth';
 import { createAuthSignal } from './hooks/create-auth-signal';
@@ -18,6 +20,15 @@ function App() {
     invoke('init_spotlight_window');
   });
 
+  onMount(async () => {
+    const unlisten = await listen('notification', () => {
+      sendNotification({ title: 'Duroot', body: 'New message' });
+    });
+    onCleanup(() => {
+      unlisten();
+    });
+  });
+  
   createAuthSignal(data => {
     if (data) {
       setAuthStore({
