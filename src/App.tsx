@@ -6,6 +6,7 @@ import { sendNotification } from '@tauri-apps/api/notification';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
 import { useAuthStore } from './stores/auth';
 import { createAuthSignal } from './hooks/create-auth-signal';
+import { fetchRequestedPullRequests } from './utils/github-api';
 
 const Auth = lazy(() => import('./pages/auth'));
 const Pulls = lazy(() => import('./pages/pulls'));
@@ -14,15 +15,23 @@ const queryClient = new QueryClient();
 
 function App() {
   const navigate = useNavigate();
-  const [, setAuthStore] = useAuthStore();
+  const [authStore, setAuthStore] = useAuthStore();
 
   onMount(() => {
     invoke('init_spotlight_window');
   });
 
   onMount(async () => {
-    const unlisten = await listen('notification', () => {
-      sendNotification({ title: 'Duroot', body: 'New message' });
+    const unlisten = await listen('notification', async () => {
+      const token = authStore()?.token;
+      if (!token) {
+        return;
+      }
+      const data = await fetchRequestedPullRequests(token);
+      if (data.total_count === 0) {
+        return;
+      }
+      sendNotification({ title: 'Duroot', body: `리뷰를 기다히는 PR ${data.total_count}개` });
     });
     onCleanup(() => {
       unlisten();
