@@ -27,19 +27,19 @@ export const createTabsSignal = () => {
   const [state, setState] = createSignal<TabState>({
     tabs: [
       {
-        name: '나의 PR',
+        name: 'My',
         key: TabKey.MY_PULL_REQUESTS,
       },
       {
-        name: '리뷰해야하는 PR',
+        name: 'Requested',
         key: TabKey.REQUESTED_PULL_REQUESTS,
       },
       {
-        name: '리뷰한 PR',
+        name: 'Reviewed',
         key: TabKey.REVIEWED_PULL_REQUESTS,
       },
       {
-        name: '승인한 PR',
+        name: 'Approved',
         key: TabKey.APPROVED_PULL_REQUESTS,
       }
     ],

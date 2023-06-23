@@ -1,5 +1,5 @@
 import { createSignal, onCleanup, onMount } from 'solid-js';
-import { useNavigate } from '@solidjs/router';
+import { useNavigate, A, useLocation } from '@solidjs/router';
 import { enable, isEnabled, disable } from 'tauri-plugin-autostart-api';
 import { Avatar } from './avatar';
 import { useAuthStore } from '../../stores/auth';
@@ -8,9 +8,10 @@ import { createLocalStorageSignal } from '../../hooks/create-local-storage-signa
 export const HEADER_HEIGHT = 44;
 
 export function Header() {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
   const [isOpen, setIsOpen] = createSignal(false);
   const [isAutoStart, setIsAutoStart] = createSignal(false);
-  const navigate = useNavigate();
   const [authStore, setAuthStore] = useAuthStore();
   const [, setLocalToken] = createLocalStorageSignal<{github?: string}>('token');
 
@@ -65,8 +66,13 @@ export function Header() {
       style={{
         height: `${HEADER_HEIGHT}px`,
       }}
-      class="flex items-center justify-end bg-[#2d333b] border border-[#373e47] px-4"
+      class="flex items-center justify-between bg-[#2d333b] border border-[#373e47] px-4"
     >
+      <div class="flex gap-4">
+        <A href="/pulls">
+          <h1 class={`${pathname === '/pulls' ? 'text-[#e6edf3]' : ''}`}>Pulls</h1>
+        </A>
+      </div>
       <div class="relative select-none" ref={element!}>
         <div class="cursor-pointer" onClick={() => setIsOpen(prev => !prev)}>
           <Avatar
