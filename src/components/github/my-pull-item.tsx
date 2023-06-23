@@ -19,8 +19,12 @@ export function MyPullItem (props: MyPullProps) {
   const [authStore] = useAuthStore();
   const tabState = createTabsSignal();
 
-  const [reviewCount, { refetch: reviewCountRefetch }] = createCachedResource(authStore, async (source) => {
-    const data = await fetchReviewCount(source.token, props.pullRequestUrl, source.login);
+  const [reviewCount, { refetch: reviewCountRefetch }] = createCachedResource(() => ['my-pulls', props.id], async () => {
+    const { token, login } = authStore() || {};
+    if (!token || !login) {
+      return;
+    }
+    const data = await fetchReviewCount(token, props.pullRequestUrl, login);
     return data;
   });
 
