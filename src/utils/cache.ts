@@ -43,10 +43,11 @@ export function getKeyForSource<S>(source: ResourceSource<S>): string {
 
 export async function unifyFetcherForKey<T = any>(
   key: string,
-  fetcher: () => Promise<T> | T
+  fetcher: () => Promise<T> | T,
+  avoidFetchIfCached = false
 ): Promise<T> {
   const cachedValue = getCachedValue(key);
-  if (cachedValue) {
+  if (cachedValue && avoidFetchIfCached) {
     return cachedValue;
   }
   if (store[key].isFetching) {
