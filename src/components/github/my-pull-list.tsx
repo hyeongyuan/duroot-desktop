@@ -36,6 +36,7 @@ export function MyPullList(props: MyPullListProps) {
                   titleUrl={item.html_url}
                   subtitle={ownerRepo}
                   subtitleUrl={`https://github.com/${ownerRepo}`}
+                  labels={item.labels.map(label => ({ name: label.name, color: label.color }))}
                   caption={`${item.draft ? 'Draft • ' : ''}${formatDistanceToNow(new Date(item.created_at))}`}
                   pullRequestUrl={item.pull_request.url}
                 />

@@ -35,6 +35,7 @@ export function PullList(props: PullListProps) {
                   titleUrl={item.html_url}
                   subtitle={ownerRepo}
                   subtitleUrl={`https://github.com/${ownerRepo}`}
+                  labels={item.labels.map(({ name, color }) => ({ name, color }))}
                   caption={`${item.user.login} · ${formatDistanceToNow(new Date(item.created_at))}`}
                 />
               );

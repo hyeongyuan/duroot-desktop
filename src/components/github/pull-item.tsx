@@ -1,10 +1,14 @@
-import { Show } from 'solid-js';
+import { For, Show } from 'solid-js';
 
 interface PullProps {
   title: string;
   titleUrl: string;
   subtitle: string;
   subtitleUrl: string;
+  labels: {
+    name: string;
+    color: string;
+  }[];
   caption?: string;
 }
 
@@ -27,8 +31,26 @@ export function PullItem (props: PullProps) {
       >
         {props.title}
       </a>
+      <span class="flex flex-wrap space-x-1 gap-1"> 
+        <For each={props.labels}>
+          {item => {
+            return (
+              <a
+                class="text-xs leading-[18px] rounded-full px-[7px] border border-transparent"
+                style={{
+                  'background-color': `#${item.color}2e`,
+                  'border-color': `#${item.color}4d`,
+                  'color': `#${item.color}`,
+                }}
+              >
+                {item.name}
+              </a>
+            );
+          }}
+        </For>
+      </span>
       <Show when={!!props.caption}>
-        <p class="text-[#768390] text-[10px] leading-5 line-clamp-1 break-all">
+        <p class="text-[#768390] text-[10px] leading-5 line-clamp-1 break-all mt-1">
           {props.caption}
         </p>
       </Show>
