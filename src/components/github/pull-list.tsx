@@ -1,6 +1,7 @@
 import { Show, For } from 'solid-js';
 import { format, formatDistanceToNow } from 'date-fns';
 import { PullItem } from './pull-item';
+import { Empty } from './empty';
 import type { GithubIssueItem, GithubSearch } from '../../types/github';
 
 interface PullListProps {
@@ -17,11 +18,7 @@ export function PullList(props: PullListProps) {
         </p>
       </div>
       <Show when={Array.isArray(props.data) ? props.data.length === 0 : props.data.items.length === 0}>
-        <div class="p-24">
-          <p class="text-[#768390] text-sm text-center">
-            {'데이터가 없습니다.'}
-          </p>
-        </div>
+        <Empty />
       </Show>
       <Show when={Array.isArray(props.data) ? props.data.length !== 0 : props.data.items.length !== 0}>
         <ul class="divide-y divide-[#373e47]">
