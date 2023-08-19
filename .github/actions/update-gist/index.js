@@ -4,7 +4,8 @@ const axios = require('axios');
 
 const GIST_ID = '8bd4a8d0481a7be2d657d8846f78b20c';
 const FILE_NAME = 'lastest-version.json';
-const PLATFORM_MAC = 'darwin-x86_64';
+const PLATFORM_MAC_INTEL = 'darwin-x86_64';
+const PLATFORM_MAC_M1 = 'darwin-aarch64';
 
 const getGist = async id => {
   const { data } = await axios.get(`https://api.github.com/gists/${id}`);
@@ -34,9 +35,14 @@ const updateGistContent = (content, { version, signature }) => {
     pub_date: new Date().toISOString(),
     platforms: {
       ...content.platforms,
-      [PLATFORM_MAC]: {
+      [PLATFORM_MAC_INTEL]: {
         ...content.platforms[PLATFORM_MAC],
-        url: `https://github.com/hyeongyuan/duroot-desktop/releases/download/release-${version}/Duroot_x64.app.tar.gz`,
+        url: `https://github.com/hyeongyuan/duroot-desktop/releases/download/release-${version}/Duroot_universal.app.tar.gz`,
+        signature,
+      },
+      [PLATFORM_MAC_M1]: {
+        ...content.platforms[PLATFORM_MAC],
+        url: `https://github.com/hyeongyuan/duroot-desktop/releases/download/release-${version}/Duroot_universal.app.tar.gz`,
         signature,
       },
     },
