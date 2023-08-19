@@ -19,6 +19,7 @@
     "date-fns": "^2.29.3",
     "lint": "eslint ./src/**/*",
     "solid-js": "^1.4.7",
+    "solid-transition-group": "^0.2.3",
     "tauri-plugin-autostart-api": "github:tauri-apps/tauri-plugin-autostart#v1"
   },
   "devDependencies": {
