@@ -60,7 +60,7 @@ function Settings() {
       <div class="pt-4">
       <section class="px-6 pb-4">
         <div class="m-2">
-          <h2 class="text-[12px]">GENERAL</h2>
+          <h2 class="text-[11px]">GENERAL</h2>
         </div>
         <div class="flex items-center justify-between bg-[#2d333b] rounded-lg px-4 py-2">
           <span>
@@ -79,7 +79,7 @@ function Settings() {
       </section>
       <section class="px-6 pb-8">
         <div class="m-2">
-          <h2 class="text-[12px]">VERSION</h2>
+          <h2 class="text-[11px]">VERSION</h2>
         </div>
         <div class="bg-[#2d333b] rounded-lg divide-y divide-[#373e47] overflow-hidden">
           <div class="flex items-center justify-between px-4 py-2">
