@@ -28,9 +28,9 @@ function Settings() {
     setIsAutoStart(await isEnabled());
   };
 
-  const handleCheckUpdate = async () => {
-    // TODO: 버전 확인 및 업데이트 알림
-  };
+  // const handleCheckUpdate = async () => {
+  //   // TODO: 버전 확인 및 업데이트 알림
+  // };
 
   const handleSignOut = async (event: MouseEvent) => {
     event.preventDefault();
@@ -88,9 +88,9 @@ function Settings() {
               v{version()}
             </span>
           </div>
-          <div class="flex items-center justify-between px-4 py-2 cursor-pointer hover:bg-[#373e47]" onClick={handleCheckUpdate}>
+          {/* <div class="flex items-center justify-between px-4 py-2 cursor-pointer hover:bg-[#373e47]" onClick={handleCheckUpdate}>
             <span>Check for Updates...</span>
-          </div>
+          </div> */}
         </div>
       </section>
       <section class="px-6 pb-8">
