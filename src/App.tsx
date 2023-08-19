@@ -7,6 +7,7 @@ import { createAuthSignal } from './hooks/create-auth-signal';
 
 const Auth = lazy(() => import('./pages/auth'));
 const Pulls = lazy(() => import('./pages/pulls'));
+const Settings = lazy(() => import('./pages/settings'));
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ function App() {
           <Route path="/" />
           <Route path="/auth" component={Auth} />
           <Route path="/pulls" component={Pulls} />
+          <Route path="/settings" component={Settings} />
         </Routes>
       </div>
     </QueryClientProvider>
