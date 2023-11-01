@@ -52,14 +52,16 @@ export function MyPullItem (props: MyPullProps) {
           <ApprovedLabel />
         </Show>
       </div>
-      <a
-        class="font-medium text-sm hover:text-[#539bf5] leading-6 line-clamp-3 break-all my-1"
-        href={props.titleUrl}
-        target="_blank"
-      >
-        {props.title}
-      </a>
-      <span class="flex flex-wrap space-x-1 gap-1"> 
+      <div class={props.labels.length > 0 ? 'mb-1' : ''}>
+        <a
+          class="font-medium text-sm hover:text-[#539bf5] leading-6 line-clamp-3 break-all"
+          href={props.titleUrl}
+          target="_blank"
+        >
+          {props.title}
+        </a>
+      </div>
+      <span class="flex flex-wrap gap-1">
         <For each={props.labels}>
           {item => {
             return (
