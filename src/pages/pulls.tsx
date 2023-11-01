@@ -7,9 +7,18 @@ import { PullList } from '../components/github/pull-list';
 import { useAuthStore } from '../stores/auth';
 import { fetchPullRequestsBy, fetchRequestedPullRequests, fetchReviewedPullRequests } from '../utils/github-api';
 import { createTabsSignal, TabKey } from '../hooks/create-tabs-signal';
+import { GithubSearch } from '../types/github';
 
 const WINDOW_HEIGHT = 500;
 const HEADER_SECTION_HEIGHT = HEADER_HEIGHT + TAB_LIST_HEIGHT;
+
+const filterDraftPulls = (data: GithubSearch): GithubSearch => {
+  const noDraftPulls = data.items.filter(item => !item.draft);
+  return {
+    total_count: noDraftPulls.length,
+    items: noDraftPulls,
+  };
+};
 
 function Pulls() {
   const tabState = createTabsSignal();
@@ -25,7 +34,7 @@ function Pulls() {
   const [requestedPulls, { refetch: requestedPullsRefetch }] = createResource(authStore, async (source) => {
     const data = await fetchRequestedPullRequests(source.token);
     return {
-      data,
+      data: filterDraftPulls(data),
       dataUpdatedAt: new Date(),
     };
   });
