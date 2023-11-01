@@ -1,5 +1,5 @@
 import { Show, For } from 'solid-js';
-import { format, formatDistanceToNow } from 'date-fns';
+import { format } from 'date-fns';
 import { PullItem } from './pull-item';
 import { Empty } from './empty';
 import type { GithubIssueItem, GithubSearch } from '../../types/github';
@@ -33,7 +33,11 @@ export function PullList(props: PullListProps) {
                   subtitle={ownerRepo}
                   subtitleUrl={`https://github.com/${ownerRepo}`}
                   labels={item.labels.map(({ name, color }) => ({ name, color }))}
-                  caption={`${item.user.login} · ${formatDistanceToNow(new Date(item.created_at))}`}
+                  user={{
+                    id: item.user.id,
+                    login: item.user.login,
+                  }}
+                  createdAt={item.created_at}
                 />
               );
             }}

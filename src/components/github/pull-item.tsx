@@ -1,4 +1,5 @@
-import { For, Show } from 'solid-js';
+import { For } from 'solid-js';
+import { formatDistanceToNow } from 'date-fns';
 
 interface PullProps {
   title: string;
@@ -10,7 +11,14 @@ interface PullProps {
     color: string;
   }[];
   caption?: string;
+  user: {
+    id: number;
+    login: string;
+  };
+  createdAt: string;
 }
+
+const getProfileUrl = (userId: number, size = 40) => `https://avatars.githubusercontent.com/u/${userId}?s=${size}&v=4`;
 
 export function PullItem (props: PullProps) {
   return (
@@ -49,11 +57,20 @@ export function PullItem (props: PullProps) {
           }}
         </For>
       </span>
-      <Show when={!!props.caption}>
-        <p class="text-[#768390] text-[10px] leading-5 line-clamp-1 break-all mt-1">
-          {props.caption}
-        </p>
-      </Show>
+      <div class="flex items-center text-[#768390]">
+        <span class="flex items-center">
+          <img class="w-4 h-4 rounded-full mr-2" src={getProfileUrl(props.user.id, 32)} alt="avatar" />
+          <p class="text-[#adbac7] text-[10px] font-medium leading-5 line-clamp-1 break-all">
+            {props.user.login}
+          </p>
+        </span>
+        <span class="mx-1">·</span>
+        <span>
+          <p class="text-[10px] font-medium leading-5 line-clamp-1 break-all">
+            {formatDistanceToNow(new Date(props.createdAt))}
+          </p>
+        </span>
+      </div>
     </li>
   );
 }
