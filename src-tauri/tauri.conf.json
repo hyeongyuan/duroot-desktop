@@ -73,6 +73,7 @@
       "iconPath": "icons/tray-icon.png",
       "iconAsTemplate": true,
       "menuOnLeftClick": false
-    }
+    },
+    "macOSPrivateApi": true
   }
 }
