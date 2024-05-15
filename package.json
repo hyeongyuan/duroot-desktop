@@ -10,6 +10,7 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "axios": "^1.6.8",
     "next": "14.2.3",
     "react": "^18",
     "react-dom": "^18"
