@@ -2,13 +2,16 @@
 
 import { useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
+import { format } from 'date-fns/format';
+import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
 import { TABS_HEIGHT } from '@/components/common/tabs';
 import { HEADER_HEIGHT } from '@/components/github/header';
 import { TabKey } from '@/components/github/pulls-tabs';
+import { PullsItem } from '@/components/github/pulls-item';
+import { MyPullsItem } from '@/components/github/my-pulls-item';
 import { Empty } from '@/components/github/empty';
 import { fetchPullRequestsBy, fetchRequestedPullRequests, fetchReviewedPullRequests } from '@/apis/github';
 import { useTokenStore } from '@/stores/token';
-import { format } from 'date-fns/format';
 import { useAuthStore } from '@/stores/auth';
 
 const WINDOW_HEIGHT = 500;
@@ -66,9 +69,43 @@ export function PullsList() {
           <Empty />
         ) : (
           <ul className="divide-y divide-[#373e47]">
-            {pulls.items.map((pull => (
-              <div key={pull.id}>{pull.title}</div>
-            )))}
+            {pulls.items.map((pull => {
+              const [repo, owner] = pull.repository_url.split('/').reverse();
+              const ownerRepo = `${owner}/${repo}`;
+              const labels = pull.draft
+                ? [{ name: ' Draft', color: 'cdd9e5' }]
+                : pull.labels.map(label => ({ name: label.name, color: label.color }));
+
+              if (tabQuery === TabKey.MY_PULL_REQUESTS) {
+                return (
+                  <MyPullsItem
+                    key={pull.id}
+                    title={pull.title}
+                    titleUrl={pull.html_url}
+                    subtitle={ownerRepo}
+                    subtitleUrl={`https://github.com/${ownerRepo}`}
+                    labels={labels}
+                    caption={formatDistanceToNow(new Date(pull.created_at))}
+                    pullRequestUrl={pull.pull_request.url}
+                  />
+                );
+              }
+              return (
+                <PullsItem
+                  key={pull.id}
+                  title={pull.title}
+                  titleUrl={pull.html_url}
+                  subtitle={ownerRepo}
+                  subtitleUrl={`https://github.com/${ownerRepo}`}
+                  labels={labels}
+                  user={{
+                    id: pull.user.id,
+                    login: pull.user.login,
+                  }}
+                  createdAt={pull.created_at}
+                />
+              );
+            }))}
           </ul>
         )
       )}

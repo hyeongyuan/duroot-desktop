@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { GithubReview, GithubSearch, GithubUser } from '@/types/github';
+import type { GitHubReviewState, GithubPull, GithubReview, GithubSearch, GithubUser } from '@/types/github';
 
 const SELF = '@me';
 
@@ -21,6 +21,15 @@ export const fetchUser = async (token: string) => {
 
 const searchIssues = async (token: string, query: string) => {
   const { data } = await instance.get<GithubSearch>(`/search/issues?q=${encodeURIComponent(query)}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return data;
+};
+
+const fetchPullRequest = async (token: string, pullRequestUrl: string) => {
+  const { data } = await instance.get<GithubPull>(pullRequestUrl, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -62,5 +71,25 @@ export const fetchReviewedPullRequests = async (token: string, login = SELF) => 
   return {
     approvedItems: exceptByLogin.filter((_, i) => approvedChecks[i]),
     reviewedItems: exceptByLogin.filter((_, i) => !approvedChecks[i]),
+  };
+};
+
+export const fetchReviewCount = async (token: string, pullRequestUrl: string, login: string) => {
+  const [pullRequest, reviews] = await Promise.all([
+    fetchPullRequest(token, pullRequestUrl),
+    fetchPullRequestReviews(token, pullRequestUrl),
+  ]);
+  const reviewObject = reviews.reduce((prevObject, review) => {
+    if (review.user.login === login || prevObject[review.user.login] === 'APPROVED') {
+      return prevObject;
+    }
+    return {
+      ...prevObject,
+      [review.user.login]: review.state,
+    };
+  }, {} as Record<string, GitHubReviewState>);
+  return {
+    approved: Object.values(reviewObject).filter(state => state === 'APPROVED').length,
+    total: Object.keys(reviewObject).length + pullRequest.requested_reviewers.length,
   };
 };

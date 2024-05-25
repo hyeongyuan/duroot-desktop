@@ -32,3 +32,9 @@ export interface GithubReview {
   state: GitHubReviewState;
   user: GithubUser;
 }
+
+export interface GithubPull {
+  url: string;
+  requested_reviewers: GithubUser[];
+  user: GithubUser;
+}
