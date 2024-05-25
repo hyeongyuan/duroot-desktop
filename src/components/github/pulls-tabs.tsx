@@ -1,7 +1,9 @@
+'use client';
+
 import { Tab, Tabs } from '@/components/common/tabs';
 import { useSearchParams } from 'next/navigation';
 
-enum TabKey {
+export enum TabKey {
   MY_PULL_REQUESTS = 'myPullRequests',
   REQUESTED_PULL_REQUESTS = 'requestedPullRequests',
   REVIEWED_PULL_REQUESTS = 'reviewedPullRequests',

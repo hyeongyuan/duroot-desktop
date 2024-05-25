@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-const TAB_LIST_HEIGHT = 44;
+export const TABS_HEIGHT = 44;
 
 export interface Tab {
   key: string;
@@ -19,7 +19,7 @@ export function Tabs({ data, activeTab, shallowRouting }: TabsProps) {
   return (
     <ul
       style={{
-        height: `${TAB_LIST_HEIGHT}px`,
+        height: `${TABS_HEIGHT}px`,
         boxShadow: 'inset 0 -1px 0 #373e47'
       }}
       className="px-2 overflow-y-auto whitespace-nowrap"

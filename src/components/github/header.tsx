@@ -1,10 +1,12 @@
+'use client';
+
 import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { exit } from '@tauri-apps/api/process';
 import { useAuthStore } from '@/stores/auth';
 import { Avatar } from '@/components/common/avatar';
 
-const HEADER_HEIGHT = 44;
+export const HEADER_HEIGHT = 44;
 
 export function Header() {
   const pathname = usePathname();
