@@ -8,7 +8,7 @@ import { fetchUser } from '@/apis/github';
 
 export default function Home() {
   const router = useRouter();
-  const auth = useAuthStore();
+  const { setData } = useAuthStore();
 
   useEffect(() => {
     database.getFieldValue<string>('token.github').then(async (token) => {
@@ -18,12 +18,14 @@ export default function Home() {
       }
       try {
         const user = await fetchUser(token);
-        console.log(user);
+        setData(user);
+
+        router.replace('/pulls');
       } catch (error) {
         router.replace('/auth');
       }
     });
-  }, [auth, router]);
+  }, [router, setData]);
 
   return null;
 }
