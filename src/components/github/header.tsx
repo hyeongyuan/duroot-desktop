@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { exit } from '@tauri-apps/api/process';
 import { useAuthStore } from '@/stores/auth';
@@ -10,6 +10,31 @@ export function Header() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const { data } = useAuthStore();
+
+  const elementRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const element = elementRef.current;
+    const mousedownEventListener = (event: MouseEvent) => {
+      if (element?.contains(event.target as Node)) {
+        return;
+      }
+      setIsOpen(false);
+    };
+    window.addEventListener('mousedown', mousedownEventListener);
+    return () => {
+      window.removeEventListener('mousedown', mousedownEventListener);
+    };
+  }, []);
+
+  useEffect(() => {
+    const blurEventListener = () => {
+      setIsOpen(false);
+    };
+    window.addEventListener('blur', blurEventListener);
+    return () => {
+      window.removeEventListener('blur', blurEventListener);
+    };
+  }, []);
 
   return (
     <div
@@ -23,7 +48,7 @@ export function Header() {
           <h1 className={`${pathname === '/pulls' ? 'text-[#e6edf3]' : ''}`}>Pulls</h1>
         </a>
       </div>
-      <div className="relative select-none">
+      <div className="relative select-none" ref={elementRef}>
         <div className="cursor-pointer" onClick={() => setIsOpen(prev => !prev)}>
           <Avatar
             size={24}
