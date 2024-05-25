@@ -10,6 +10,7 @@ import { TabKey } from '@/components/github/pulls-tabs';
 import { PullsItem } from '@/components/github/pulls-item';
 import { MyPullsItem } from '@/components/github/my-pulls-item';
 import { Empty } from '@/components/github/empty';
+import { Spinner } from '@/components/common/spinner';
 import { fetchPullRequestsBy, fetchRequestedPullRequests, fetchReviewedPullRequests } from '@/apis/github';
 import { useTokenStore } from '@/stores/token';
 import { useAuthStore } from '@/stores/auth';
@@ -23,7 +24,7 @@ export function PullsList() {
   const { data: token } = useTokenStore();
   const { data: auth } = useAuthStore();
 
-  const { data: pulls } = useQuery({
+  const { data: pulls, isLoading, isRefetching } = useQuery({
     queryKey: ['pulls', tabQuery],
     queryFn: async () => {
       if (!token) {
@@ -109,6 +110,7 @@ export function PullsList() {
           </ul>
         )
       )}
+      <Spinner show={isLoading || isRefetching} />
     </div>
   );
 }

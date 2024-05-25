@@ -15,6 +15,7 @@ export default function RootLayout({ children }: Readonly<{
           <QueryProvider>
             {children}
           </QueryProvider>
+          <div id="portal-spinner" />
         </div>
       </body>
     </html>
