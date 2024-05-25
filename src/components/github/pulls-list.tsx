@@ -8,6 +8,8 @@ import { TabKey } from '@/components/github/pulls-tabs';
 import { Empty } from '@/components/github/empty';
 import { fetchPullRequestsBy, fetchRequestedPullRequests, fetchReviewedPullRequests } from '@/apis/github';
 import { useTokenStore } from '@/stores/token';
+import { format } from 'date-fns/format';
+import { useAuthStore } from '@/stores/auth';
 
 const WINDOW_HEIGHT = 500;
 const HEADER_SECTION_HEIGHT = HEADER_HEIGHT + TABS_HEIGHT;
@@ -16,6 +18,7 @@ export function PullsList() {
   const searchParams = useSearchParams();
   const tabQuery = (searchParams.get('tab') || TabKey.MY_PULL_REQUESTS)as TabKey;
   const { data: token } = useTokenStore();
+  const { data: auth } = useAuthStore();
 
   const { data: pulls } = useQuery({
     queryKey: ['pulls', tabQuery],
@@ -26,16 +29,25 @@ export function PullsList() {
       switch(tabQuery) {
         case TabKey.MY_PULL_REQUESTS: {
           const { items } = await fetchPullRequestsBy(token);
-          return items;
+          return {
+            items,
+            lastUpdatedAt: new Date(),
+          };
         }
         case TabKey.REQUESTED_PULL_REQUESTS: {
           const { items } = await fetchRequestedPullRequests(token);
-          return items;
+          return {
+            items,
+            lastUpdatedAt: new Date(),
+          };
         }
         case TabKey.REVIEWED_PULL_REQUESTS:
         case TabKey.APPROVED_PULL_REQUESTS:
-          const { reviewedItems, approvedItems } = await fetchReviewedPullRequests(token);
-          return TabKey.REVIEWED_PULL_REQUESTS ? reviewedItems : approvedItems;
+          const { reviewedItems, approvedItems } = await fetchReviewedPullRequests(token, auth?.login);
+          return {
+            items: TabKey.REVIEWED_PULL_REQUESTS ? reviewedItems : approvedItems,
+            lastUpdatedAt: new Date(),
+          };
       }
     },
   });
@@ -44,17 +56,17 @@ export function PullsList() {
     <div style={{ height: `${WINDOW_HEIGHT - HEADER_SECTION_HEIGHT}px` }} className="overflow-y-auto">
       <div className="py-2">
         <p className="text-[#768390] text-[10px] text-center">
-          {'Last Update'}
+          {`Last Update ${format(pulls?.lastUpdatedAt || new Date(), 'HH\'h\' mm\'m\' ss\'s\'')}`}
         </p>
       </div>
       {!pulls ? (
         null
       ) : (
-        pulls.length === 0 ? (
+        pulls.items.length === 0 ? (
           <Empty />
         ) : (
           <ul className="divide-y divide-[#373e47]">
-            {pulls.map((pull => (
+            {pulls.items.map((pull => (
               <div key={pull.id}>{pull.title}</div>
             )))}
           </ul>
