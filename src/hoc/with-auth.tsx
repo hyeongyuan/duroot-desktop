@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth';
 import { database } from '@/utils/database';
 import { fetchUser } from '@/apis/github';
+import { useTokenStore } from '@/stores/token';
 import { type GithubUser } from '@/types/github';
-import { useRouter } from 'next/navigation';
 
 export interface AuthProps {
   auth: GithubUser;
@@ -14,10 +15,11 @@ export interface AuthProps {
 export const withAuth = <P extends AuthProps>(WrappedComponent: React.ComponentType<P>) => {
   const Component = (props: Omit<P, keyof AuthProps>) => {
     const router = useRouter();
-    const { data, setData } = useAuthStore();
+    const { data: authData, setData: setAuthData } = useAuthStore();
+    const { setData: setTokenData } = useTokenStore();
 
     useEffect(() => {
-      if (data) {
+      if (authData) {
         return;
       }
       database.getFieldValue<string>('token.github').then(async (token) => {
@@ -25,19 +27,20 @@ export const withAuth = <P extends AuthProps>(WrappedComponent: React.ComponentT
           router.replace('/auth');
           return;
         }
+        setTokenData(token);
         try {
           const user = await fetchUser(token);
-          setData(user);
+          setAuthData(user);
         } catch (error) {
           router.replace('/auth');
         }
       });
-    }, [router, data, setData]);
+    }, [router, authData, setAuthData, setTokenData]);
 
-    if (!data) {
+    if (!authData) {
       return null;
     }
-    return <WrappedComponent {...(props as P)} auth={data} />;
+    return <WrappedComponent {...(props as P)} auth={authData} />;
   };
   return Component;
 };

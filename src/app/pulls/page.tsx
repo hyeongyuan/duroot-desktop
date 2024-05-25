@@ -1,7 +1,8 @@
 'use client';
 
-import { PullsTabs } from '@/components/github/pulls-tabs';
 import { Header } from '@/components/github/header';
+import { PullsTabs } from '@/components/github/pulls-tabs';
+import { PullsList } from '@/components/github/pulls-list';
 import { withAuth } from '@/hoc/with-auth';
 
 function Pulls() {
@@ -9,6 +10,7 @@ function Pulls() {
     <div className="w-full">
       <Header />
       <PullsTabs />
+      <PullsList />
     </div>
   );
 }
