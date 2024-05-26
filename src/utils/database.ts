@@ -1,4 +1,4 @@
-import { exists, readTextFile, BaseDirectory } from '@tauri-apps/api/fs';
+import { exists, readTextFile, BaseDirectory, writeTextFile } from '@tauri-apps/api/fs';
 
 const DATABASE_ROOT = 'databases';
 const DATABASE_FILE = `${DATABASE_ROOT}/v1.txt`;
@@ -41,6 +41,25 @@ class Database {
       pointer = pointer[currentKey] || {};
     }
     return pointer as T | undefined;
+  }
+
+  async updateFieldValue(key: string, value: any) {
+    const data = await this._load();
+
+    let pointer = data as any;
+    const keys = key.split('.');
+
+    for (let i = 0; i < keys.length; i++) {
+      const currentKey = keys[i];
+      if (i === keys.length - 1) {
+        pointer[currentKey] = value;
+      } else {
+        pointer = pointer[currentKey] || {};
+      }
+    }
+
+    await writeTextFile(DATABASE_FILE, JSON.stringify(data), { dir: BaseDirectory.AppData });
+    return data;
   }
 }
 
