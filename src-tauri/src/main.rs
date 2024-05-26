@@ -2,10 +2,12 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use tauri::{Manager, SystemTray, SystemTrayEvent, SystemTrayMenu};
+use tauri_plugin_autostart::MacosLauncher;
 
 fn main() {
   let system_tray_menu = SystemTrayMenu::new();
   tauri::Builder::default()
+    .plugin(tauri_plugin_autostart::init(MacosLauncher::AppleScript, Some(vec![])))
     .system_tray(SystemTray::new().with_menu(system_tray_menu))
     .on_system_tray_event(|app, event| match event {
       SystemTrayEvent::LeftClick {
