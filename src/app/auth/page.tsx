@@ -1,25 +1,30 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { AxiosError } from 'axios';
 import { Input } from '@/components/common/input';
 import { fetchUser } from '@/apis/github';
+import { database } from '@/utils/database';
 
 const ERROR_MESSAGE: Record<number, string> = {
   401: 'It is not a valid token.',
 };
 
 export default function Auth() {
+  const router = useRouter();
   const [inputValue, setInputValue] = useState('');
   const [message, setMessage] = useState('');
 
   const handleSubmit = async () => {
     setMessage('');
     try {
-      const user = await fetchUser(inputValue);
-      // TODO: 인증 정보 저장
-      console.log('user', user);
+      await fetchUser(inputValue);
+
+      await database.updateFieldValue('token.github', inputValue);
+
+      router.replace('/');
     } catch (error) {
       if (error instanceof AxiosError) {
         const { status } = error.response || { status: 599 };
