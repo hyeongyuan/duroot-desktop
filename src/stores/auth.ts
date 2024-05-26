@@ -3,7 +3,7 @@ import { create } from 'zustand';
 
 interface AuthStare {
   data: GithubUser | null
-  setData: (data: GithubUser) => void;
+  setData: (data: GithubUser | null) => void;
 }
 
 export const useAuthStore = create<AuthStare>((set) => ({

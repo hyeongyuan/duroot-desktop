@@ -4,10 +4,25 @@
 import { useRouter } from 'next/navigation';
 import { HEADER_HEIGHT } from '@/components/github/header';
 import { useAppVersion } from '@/hooks/use-app-version';
+import { useAuthStore } from '@/stores/auth';
+import { useTokenStore } from '@/stores/token';
+import { database } from '@/utils/database';
 
 export default function Settings() {
   const router = useRouter();
   const version = useAppVersion();
+  const { setData: setToken } = useTokenStore();
+  const { setData: setAuthData } = useAuthStore();
+
+  const handleSignOut = async () => {
+    await database.updateFieldValue('token.github', null);
+
+    setToken(null);
+    setAuthData(null);
+
+    router.push('/auth');
+  };
+
   return (
     <div className="w-full">
       <div
@@ -61,6 +76,7 @@ export default function Settings() {
         <section className="px-6 pb-8">
           <div
             className="flex items-center justify-between bg-[#2d333b] rounded-lg px-4 py-2 cursor-pointer hover:bg-[#373e47] overflow-hidden"
+            onClick={handleSignOut}
           >
             <span className="text-[#539BF5]">
               Sign out
