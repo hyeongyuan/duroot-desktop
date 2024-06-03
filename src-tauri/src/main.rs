@@ -3,23 +3,32 @@
 
 use tauri::{Manager, SystemTray, SystemTrayEvent, SystemTrayMenu};
 use tauri_plugin_autostart::MacosLauncher;
+use tauri_plugin_positioner::{Position, WindowExt};
 
 fn main() {
   let system_tray_menu = SystemTrayMenu::new();
   tauri::Builder::default()
     .plugin(tauri_plugin_autostart::init(MacosLauncher::AppleScript, Some(vec![])))
+    .plugin(tauri_plugin_positioner::init())
     .system_tray(SystemTray::new().with_menu(system_tray_menu))
-    .on_system_tray_event(|app, event| match event {
-      SystemTrayEvent::LeftClick {
-        position: _,
-        size: _,
-        ..
-      } => {
-        let window = app.get_window("main").unwrap();
+    .on_system_tray_event(|app, event| {
+      tauri_plugin_positioner::on_tray_event(app, &event);
+      match event {
+        SystemTrayEvent::LeftClick {
+          position: _,
+          size: _,
+          ..
+        } => {
+          let window = app.get_window("main").unwrap();
 
-        let _ = window.show();
+          let _ = window.move_window(Position::TrayCenter);
+  
+          let _ = window.show();
+
+          let _ = window.set_focus();
+        }
+        _ => {}
       }
-      _ => {}
     })
     .on_window_event(|event| match event.event() {
       tauri::WindowEvent::Focused(is_focused) => {
