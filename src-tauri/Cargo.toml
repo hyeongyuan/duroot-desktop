@@ -1,11 +1,11 @@
 [package]
-name = "app"
-version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
+name = "duroot-desktop"
+version = "1.0.0"
+description = "Desktop applications that gather and view information related to GitHub"
+authors = ["hyeongyuan"]
 license = ""
-repository = ""
-default-run = "app"
+repository = "https://github.com/hyeongyuan/duroot-desktop"
+default-run = "duroot-desktop"
 edition = "2021"
 rust-version = "1.60"
 
