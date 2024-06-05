@@ -2,8 +2,8 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 const axios = require('axios');
 
-const GIST_ID = '8bd4a8d0481a7be2d657d8846f78b20c';
-const FILE_NAME = 'lastest-version.json';
+const GIST_ID = '7c2b19d446d46ef6e14f72f2bd1d224c';
+const FILE_NAME = 'latest-version.json';
 const PLATFORM_MAC_INTEL = 'darwin-x86_64';
 const PLATFORM_MAC_M1 = 'darwin-aarch64';
 
@@ -69,7 +69,7 @@ const run = async () => {
 
     const nextGistContent = updateGistContent(gistContent, { version: nextVersion, signature: sigContent });
 
-    await updateGist('7c2b19d446d46ef6e14f72f2bd1d224c', nextGistContent);
+    await updateGist(GIST_ID, nextGistContent);
     console.log(`Success to update file:\n${JSON.stringify(nextGistContent, undefined, 2)}`);
   } catch (error) {
     core.setFailed(error.message);
