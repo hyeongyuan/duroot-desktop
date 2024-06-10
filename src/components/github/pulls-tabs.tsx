@@ -22,34 +22,46 @@ export function  PullsTabs() {
 
   const [myPulls, requestedPulls, reviewedPulls, approvedPulls] = useQueries({ queries: [
     {
-      queryKey: ['pulls', 'count', TabKey.MY_PULL_REQUESTS],
+      queryKey: ['pulls', TabKey.MY_PULL_REQUESTS],
       queryFn: async () => {
-        const { total_count } = await fetchPullRequestsBy(token!);
-        return total_count;
+        const { items } = await fetchPullRequestsBy(token!);
+        return {
+          items,
+          lastUpdatedAt: new Date(),
+        };
       },
       enabled: !!token,
     },
     {
-      queryKey: ['pulls', 'count', TabKey.REQUESTED_PULL_REQUESTS],
+      queryKey: ['pulls', TabKey.REQUESTED_PULL_REQUESTS],
       queryFn: async () => {
-        const { total_count } = await fetchRequestedPullRequests(token!);
-        return total_count;
+        const { items } = await fetchRequestedPullRequests(token!);
+        return {
+          items,
+          lastUpdatedAt: new Date(),
+        };
       },
       enabled: !!token,
     },
     {
-      queryKey: ['pulls', 'count', TabKey.REVIEWED_PULL_REQUESTS],
+      queryKey: ['pulls', TabKey.REVIEWED_PULL_REQUESTS],
       queryFn: async () => {
         const { reviewedItems } = await fetchReviewedPullRequests(token!, auth?.login);
-        return reviewedItems.length;
+        return {
+          items: reviewedItems,
+          lastUpdatedAt: new Date(),
+        };
       },
       enabled: !!token,
     },
     {
-      queryKey: ['pulls', 'count', TabKey.APPROVED_PULL_REQUESTS],
+      queryKey: ['pulls', TabKey.APPROVED_PULL_REQUESTS],
       queryFn: async () => {
         const { approvedItems } = await fetchReviewedPullRequests(token!, auth?.login);
-        return approvedItems.length;
+        return {
+          items: approvedItems,
+          lastUpdatedAt: new Date(),
+        };
       },
       enabled: !!token,
     },
@@ -60,25 +72,25 @@ export function  PullsTabs() {
       key: TabKey.MY_PULL_REQUESTS,
       name: 'My',
       href: `/pulls?tab=${TabKey.MY_PULL_REQUESTS}`,
-      count: myPulls.data,
+      count: myPulls.data?.items.length,
     },
     {
       key: TabKey.REQUESTED_PULL_REQUESTS,
       name: 'Requested',
       href: `/pulls?tab=${TabKey.REQUESTED_PULL_REQUESTS}`,
-      count: requestedPulls.data,
+      count: requestedPulls.data?.items.length,
     },
     {
       key: TabKey.REVIEWED_PULL_REQUESTS,
       name: 'Reviewed',
       href: `/pulls?tab=${TabKey.REVIEWED_PULL_REQUESTS}`,
-      count: reviewedPulls.data,
+      count: reviewedPulls.data?.items.length,
     },
     {
       key: TabKey.APPROVED_PULL_REQUESTS,
       name: 'Approved',
       href: `/pulls?tab=${TabKey.APPROVED_PULL_REQUESTS}`,
-      count: approvedPulls.data,
+      count: approvedPulls.data?.items.length,
     }
   ];
 

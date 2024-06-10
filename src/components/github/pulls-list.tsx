@@ -27,19 +27,16 @@ export function PullsList() {
   const { data: pulls, isLoading, isRefetching } = useQuery({
     queryKey: ['pulls', tabQuery],
     queryFn: async () => {
-      if (!token) {
-        return;
-      }
       switch(tabQuery) {
         case TabKey.MY_PULL_REQUESTS: {
-          const { items } = await fetchPullRequestsBy(token);
+          const { items } = await fetchPullRequestsBy(token!);
           return {
             items,
             lastUpdatedAt: new Date(),
           };
         }
         case TabKey.REQUESTED_PULL_REQUESTS: {
-          const { items } = await fetchRequestedPullRequests(token);
+          const { items } = await fetchRequestedPullRequests(token!);
           return {
             items,
             lastUpdatedAt: new Date(),
@@ -47,13 +44,14 @@ export function PullsList() {
         }
         case TabKey.REVIEWED_PULL_REQUESTS:
         case TabKey.APPROVED_PULL_REQUESTS:
-          const { reviewedItems, approvedItems } = await fetchReviewedPullRequests(token, auth?.login);
+          const { reviewedItems, approvedItems } = await fetchReviewedPullRequests(token!, auth?.login);
           return {
             items: TabKey.REVIEWED_PULL_REQUESTS ? reviewedItems : approvedItems,
             lastUpdatedAt: new Date(),
           };
       }
     },
+    enabled: !!token,
   });
 
   return (
