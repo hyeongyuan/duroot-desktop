@@ -1,6 +1,10 @@
 'use client';
 
+import { fetchPullRequestsBy, fetchRequestedPullRequests, fetchReviewedPullRequests } from '@/apis/github';
 import { Tab, Tabs } from '@/components/common/tabs';
+import { useAuthStore } from '@/stores/auth';
+import { useTokenStore } from '@/stores/token';
+import { useQueries } from '@tanstack/react-query';
 import { useSearchParams } from 'next/navigation';
 
 export enum TabKey {
@@ -10,34 +14,75 @@ export enum TabKey {
   APPROVED_PULL_REQUESTS = 'approvedPullRequests',
 }
 
-const TABS: Tab[] =  [
-  {
-    key: TabKey.MY_PULL_REQUESTS,
-    name: 'My',
-    href: `/pulls?tab=${TabKey.MY_PULL_REQUESTS}`,
-  },
-  {
-    key: TabKey.REQUESTED_PULL_REQUESTS,
-    name: 'Requested',
-    href: `/pulls?tab=${TabKey.REQUESTED_PULL_REQUESTS}`,
-  },
-  {
-    key: TabKey.REVIEWED_PULL_REQUESTS,
-    name: 'Reviewed',
-    href: `/pulls?tab=${TabKey.REVIEWED_PULL_REQUESTS}`,
-  },
-  {
-    key: TabKey.APPROVED_PULL_REQUESTS,
-    name: 'Approved',
-    href: `/pulls?tab=${TabKey.APPROVED_PULL_REQUESTS}`,
-  }
-];
-
-export function PullsTabs() {
+export function  PullsTabs() {
   const searchParams = useSearchParams();
   const tabQuery = (searchParams.get('tab') || TabKey.MY_PULL_REQUESTS)as TabKey;
+  const { data: token } = useTokenStore();
+  const { data: auth } = useAuthStore();
+
+  const [myPulls, requestedPulls, reviewedPulls, approvedPulls] = useQueries({ queries: [
+    {
+      queryKey: ['pulls', 'count', TabKey.MY_PULL_REQUESTS],
+      queryFn: async () => {
+        const { total_count } = await fetchPullRequestsBy(token!);
+        return total_count;
+      },
+      enabled: !!token,
+    },
+    {
+      queryKey: ['pulls', 'count', TabKey.REQUESTED_PULL_REQUESTS],
+      queryFn: async () => {
+        const { total_count } = await fetchRequestedPullRequests(token!);
+        return total_count;
+      },
+      enabled: !!token,
+    },
+    {
+      queryKey: ['pulls', 'count', TabKey.REVIEWED_PULL_REQUESTS],
+      queryFn: async () => {
+        const { reviewedItems } = await fetchReviewedPullRequests(token!, auth?.login);
+        return reviewedItems.length;
+      },
+      enabled: !!token,
+    },
+    {
+      queryKey: ['pulls', 'count', TabKey.APPROVED_PULL_REQUESTS],
+      queryFn: async () => {
+        const { approvedItems } = await fetchReviewedPullRequests(token!, auth?.login);
+        return approvedItems.length;
+      },
+      enabled: !!token,
+    },
+  ] });
+
+  const tabs: Tab[] = [
+    {
+      key: TabKey.MY_PULL_REQUESTS,
+      name: 'My',
+      href: `/pulls?tab=${TabKey.MY_PULL_REQUESTS}`,
+      count: myPulls.data,
+    },
+    {
+      key: TabKey.REQUESTED_PULL_REQUESTS,
+      name: 'Requested',
+      href: `/pulls?tab=${TabKey.REQUESTED_PULL_REQUESTS}`,
+      count: requestedPulls.data,
+    },
+    {
+      key: TabKey.REVIEWED_PULL_REQUESTS,
+      name: 'Reviewed',
+      href: `/pulls?tab=${TabKey.REVIEWED_PULL_REQUESTS}`,
+      count: reviewedPulls.data,
+    },
+    {
+      key: TabKey.APPROVED_PULL_REQUESTS,
+      name: 'Approved',
+      href: `/pulls?tab=${TabKey.APPROVED_PULL_REQUESTS}`,
+      count: approvedPulls.data,
+    }
+  ];
 
   return (
-    <Tabs data={TABS} activeTab={tabQuery} />
+    <Tabs data={tabs} activeTab={tabQuery} />
   );
 }
