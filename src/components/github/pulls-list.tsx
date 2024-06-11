@@ -11,9 +11,9 @@ import { PullsItem } from '@/components/github/pulls-item';
 import { MyPullsItem } from '@/components/github/my-pulls-item';
 import { Empty } from '@/components/github/empty';
 import { Spinner } from '@/components/common/spinner';
-import { fetchPullRequestsBy, fetchRequestedPullRequests, fetchReviewedPullRequests } from '@/apis/github';
 import { useTokenStore } from '@/stores/token';
 import { useAuthStore } from '@/stores/auth';
+import { queryApprovedPullRequests, queryMyPullRequests, queryRequestedPullRequests, queryReviewedPullRequests } from '@/queries/github';
 
 const WINDOW_HEIGHT = 500;
 const HEADER_SECTION_HEIGHT = HEADER_HEIGHT + TABS_HEIGHT;
@@ -28,27 +28,14 @@ export function PullsList() {
     queryKey: ['pulls', tabQuery],
     queryFn: async () => {
       switch(tabQuery) {
-        case TabKey.MY_PULL_REQUESTS: {
-          const { items } = await fetchPullRequestsBy(token!);
-          return {
-            items,
-            lastUpdatedAt: new Date(),
-          };
-        }
-        case TabKey.REQUESTED_PULL_REQUESTS: {
-          const { items } = await fetchRequestedPullRequests(token!);
-          return {
-            items,
-            lastUpdatedAt: new Date(),
-          };
-        }
+        case TabKey.MY_PULL_REQUESTS: 
+          return queryMyPullRequests(token!);
+        case TabKey.REQUESTED_PULL_REQUESTS:
+          return queryRequestedPullRequests(token!);
         case TabKey.REVIEWED_PULL_REQUESTS:
+          return queryReviewedPullRequests(token!, auth?.login);
         case TabKey.APPROVED_PULL_REQUESTS:
-          const { reviewedItems, approvedItems } = await fetchReviewedPullRequests(token!, auth?.login);
-          return {
-            items: TabKey.REVIEWED_PULL_REQUESTS ? reviewedItems : approvedItems,
-            lastUpdatedAt: new Date(),
-          };
+          return queryApprovedPullRequests(token!, auth?.login);
       }
     },
     enabled: !!token,
@@ -68,7 +55,7 @@ export function PullsList() {
           <Empty />
         ) : (
           <ul className="divide-y divide-[#373e47]">
-            {pulls.items.map((pull => {
+            {[...pulls.items, ...pulls.items, ...pulls.items, ...pulls.items].map((pull => {
               const [repo, owner] = pull.repository_url.split('/').reverse();
               const ownerRepo = `${owner}/${repo}`;
               const labels = pull.draft
@@ -86,6 +73,7 @@ export function PullsList() {
                     labels={labels}
                     caption={formatDistanceToNow(new Date(pull.created_at))}
                     pullRequestUrl={pull.pull_request.url}
+                    draft={pull.draft}
                   />
                 );
               }

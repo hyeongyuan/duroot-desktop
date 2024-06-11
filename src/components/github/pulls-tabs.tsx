@@ -1,7 +1,7 @@
 'use client';
 
-import { fetchPullRequestsBy, fetchRequestedPullRequests, fetchReviewedPullRequests } from '@/apis/github';
 import { Tab, Tabs } from '@/components/common/tabs';
+import { queryApprovedPullRequests, queryMyPullRequests, queryRequestedPullRequests, queryReviewedPullRequests } from '@/queries/github';
 import { useAuthStore } from '@/stores/auth';
 import { useTokenStore } from '@/stores/token';
 import { useQueries } from '@tanstack/react-query';
@@ -23,46 +23,22 @@ export function  PullsTabs() {
   const [myPulls, requestedPulls, reviewedPulls, approvedPulls] = useQueries({ queries: [
     {
       queryKey: ['pulls', TabKey.MY_PULL_REQUESTS],
-      queryFn: async () => {
-        const { items } = await fetchPullRequestsBy(token!);
-        return {
-          items,
-          lastUpdatedAt: new Date(),
-        };
-      },
+      queryFn: () => queryMyPullRequests(token!),
       enabled: !!token,
     },
     {
       queryKey: ['pulls', TabKey.REQUESTED_PULL_REQUESTS],
-      queryFn: async () => {
-        const { items } = await fetchRequestedPullRequests(token!);
-        return {
-          items,
-          lastUpdatedAt: new Date(),
-        };
-      },
+      queryFn: () => queryRequestedPullRequests(token!),
       enabled: !!token,
     },
     {
       queryKey: ['pulls', TabKey.REVIEWED_PULL_REQUESTS],
-      queryFn: async () => {
-        const { reviewedItems } = await fetchReviewedPullRequests(token!, auth?.login);
-        return {
-          items: reviewedItems,
-          lastUpdatedAt: new Date(),
-        };
-      },
+      queryFn: () => queryReviewedPullRequests(token!, auth?.login),
       enabled: !!token,
     },
     {
       queryKey: ['pulls', TabKey.APPROVED_PULL_REQUESTS],
-      queryFn: async () => {
-        const { approvedItems } = await fetchReviewedPullRequests(token!, auth?.login);
-        return {
-          items: approvedItems,
-          lastUpdatedAt: new Date(),
-        };
-      },
+      queryFn: () => queryApprovedPullRequests(token!, auth?.login),
       enabled: !!token,
     },
   ] });

@@ -16,20 +16,18 @@ interface MyPullsItemProps {
   }[];
   pullRequestUrl: string;
   caption?: string;
+  draft?: boolean;
 }
 
-export function MyPullsItem({ title, titleUrl, subtitle, subtitleUrl, labels, pullRequestUrl, caption }: MyPullsItemProps) {
+export function MyPullsItem({ title, titleUrl, subtitle, subtitleUrl, labels, pullRequestUrl, caption, draft }: MyPullsItemProps) {
   const { data: token } = useTokenStore();
   const { data: auth } = useAuthStore();
+  const { login } = auth ?? {};
 
   const { data: reviewCount } = useQuery({
-    queryKey: ['my-pulls', pullRequestUrl, auth?.login],
-    queryFn: async () => {
-      if (!token || !auth) {
-        return;
-      }
-      return await fetchReviewCount(token, pullRequestUrl, auth.login);
-    }
+    queryKey: ['my-pulls', pullRequestUrl, login],
+    queryFn: () => fetchReviewCount(token!, pullRequestUrl, login!),
+    enabled: !!token && !!login
   });
 
   const allApproved = reviewCount && reviewCount.approved === reviewCount.total;
@@ -44,7 +42,7 @@ export function MyPullsItem({ title, titleUrl, subtitle, subtitleUrl, labels, pu
         >
           {subtitle}
         </a>
-        {allApproved && <ApprovedMark />}
+        {(!draft && allApproved) && <ApprovedMark />}
       </div>
       <div className={labels.length > 0 ? 'mb-1' : ''}>
         <a
