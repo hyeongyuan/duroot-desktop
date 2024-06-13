@@ -1,12 +1,14 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use tauri::{Manager, SystemTray, SystemTrayEvent, SystemTrayMenu};
+use tauri::{CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu};
 use tauri_plugin_autostart::MacosLauncher;
 use tauri_plugin_positioner::{Position, WindowExt};
 
 fn main() {
-  let system_tray_menu = SystemTrayMenu::new();
+  let system_tray_menu = SystemTrayMenu::new()
+    .add_item(CustomMenuItem::new("quit".to_string(), "Quit"));
+
   tauri::Builder::default()
     .plugin(tauri_plugin_autostart::init(MacosLauncher::AppleScript, Some(vec![])))
     .plugin(tauri_plugin_positioner::init())
@@ -19,14 +21,22 @@ fn main() {
           size: _,
           ..
         } => {
-          let window = app.get_window("main").unwrap();
+          let tray_window = app.get_window("main").unwrap();
 
-          let _ = window.move_window(Position::TrayCenter);
-  
-          let _ = window.show();
-
-          let _ = window.set_focus();
+          if tray_window.is_visible().unwrap() {
+            tray_window.hide().unwrap();
+          } else {
+            tray_window.move_window(Position::TrayCenter).unwrap();
+            tray_window.show().unwrap();
+            tray_window.set_focus().unwrap();
+          }
         }
+        SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
+          "quit" => {
+              std::process::exit(0);
+          }
+          _ => {}
+        },
         _ => {}
       }
     })

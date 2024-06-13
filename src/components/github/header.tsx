@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { exit } from '@tauri-apps/api/process';
 import { useAuthStore } from '@/stores/auth';
 import { Avatar } from '@/components/common/avatar';
 
@@ -83,16 +82,6 @@ export function Header() {
               Settings
             </span>
           </Link>
-
-          <div className="border-t border-[#444c56] my-[6px]" />
-
-          <a
-            href="#"
-            className="block px-2 py-1 mx-2 hover:bg-[#444c56] rounded"
-            onClick={() => exit(1)}
-          >
-            Quit
-          </a>
         </div>
       </div>
     </div>
