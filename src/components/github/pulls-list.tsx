@@ -2,6 +2,7 @@
 
 import { useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
+import { open } from '@tauri-apps/api/shell';
 import { format } from 'date-fns/format';
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
 import { TABS_HEIGHT } from '@/components/common/tabs';
@@ -41,6 +42,15 @@ export function PullsList() {
     enabled: !!token,
   });
 
+  const handleClickOpenAll = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    if (!pulls) {
+      return;
+    }
+    const urls = pulls.items.map(item => item.html_url);
+    urls.forEach(url => open(url));
+  };
+
   return (
     <div style={{ height: `${WINDOW_HEIGHT - HEADER_SECTION_HEIGHT}px` }} className="overflow-y-auto">
       <div className="py-2">
@@ -54,6 +64,16 @@ export function PullsList() {
         pulls.items.length === 0 ? (
           <Empty />
         ) : (
+          <>
+          <div className="flex justify-end px-4">
+            <a
+              href="#"
+              className="font-medium text-xs leading-5 line-clamp-1 break-all hover:bg-[#373e47] px-3 py-1 rounded"
+              onClick={handleClickOpenAll}
+            >
+              Open All
+            </a>
+          </div>
           <ul className="divide-y divide-[#373e47]">
             {pulls.items.map((pull => {
               const [repo, owner] = pull.repository_url.split('/').reverse();
@@ -94,6 +114,7 @@ export function PullsList() {
               );
             }))}
           </ul>
+          </>
         )
       )}
       <Spinner show={isLoading || isRefetching} />
