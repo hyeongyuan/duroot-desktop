@@ -74,7 +74,7 @@ export function PullsList() {
             <RoundButton onClick={handleClickOpenAll} label="Open all"  />
           </div>
           <ul className="divide-y divide-[#373e47]">
-            {[...pulls.items, ...pulls.items, ...pulls.items, ...pulls.items].map((pull => {
+            {pulls.items.map((pull => {
               const [repo, owner] = pull.repository_url.split('/').reverse();
               const ownerRepo = `${owner}/${repo}`;
               const labels = pull.draft
