@@ -12,6 +12,7 @@ import { PullsItem } from '@/components/github/pulls-item';
 import { MyPullsItem } from '@/components/github/my-pulls-item';
 import { Empty } from '@/components/github/empty';
 import { Spinner } from '@/components/common/spinner';
+import { RoundButton } from '@/components/common/round-button';
 import { useTokenStore } from '@/stores/token';
 import { useAuthStore } from '@/stores/auth';
 import { queryApprovedPullRequests, queryMyPullRequests, queryRequestedPullRequests, queryReviewedPullRequests } from '@/queries/github';
@@ -25,7 +26,7 @@ export function PullsList() {
   const { data: token } = useTokenStore();
   const { data: auth } = useAuthStore();
 
-  const { data: pulls, isLoading, isRefetching } = useQuery({
+  const { data: pulls, isLoading, isRefetching, refetch } = useQuery({
     queryKey: ['pulls', tabQuery],
     queryFn: async () => {
       switch(tabQuery) {
@@ -42,8 +43,11 @@ export function PullsList() {
     enabled: !!token,
   });
 
-  const handleClickOpenAll = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
+  const handleClickReload = () => {
+    refetch();
+  };
+
+  const handleClickOpenAll = () => {
     if (!pulls) {
       return;
     }
@@ -65,17 +69,12 @@ export function PullsList() {
           <Empty />
         ) : (
           <>
-          <div className="flex justify-end px-4">
-            <a
-              href="#"
-              className="font-medium text-xs leading-5 line-clamp-1 break-all hover:bg-[#373e47] px-3 py-1 rounded"
-              onClick={handleClickOpenAll}
-            >
-              Open All
-            </a>
+          <div className="flex px-4 space-x-2">
+            <RoundButton onClick={handleClickReload} label="Reload"  />
+            <RoundButton onClick={handleClickOpenAll} label="Open all"  />
           </div>
           <ul className="divide-y divide-[#373e47]">
-            {pulls.items.map((pull => {
+            {[...pulls.items, ...pulls.items, ...pulls.items, ...pulls.items].map((pull => {
               const [repo, owner] = pull.repository_url.split('/').reverse();
               const ownerRepo = `${owner}/${repo}`;
               const labels = pull.draft
